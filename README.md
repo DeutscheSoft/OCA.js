@@ -27,6 +27,8 @@ This implementation is in alpha state. It has been tested against a
 small number of OCA devices only. The hand-written parts do not contain any
 documentation.
 
+## How-To
+
 This repository contains a simple web server, which can be used to connect a
 WebSocket to an OCA device. This simple proxy does not support OCA device discovery and
 therefore the IP-address and port of the OCA device need to be specified manually.
@@ -46,6 +48,13 @@ can be used to call methods.
 For example type into the JavaScript console:
 
     objects[0].GetRole().then(function(role) { console.log('My role is: '+role); });
+
+## OCA PI Microdemo
+
+The file `micro/index.html` contains a simple UI which can be used to control the OCA PI Microdemo.
+Simple connect the server at the ip and port running the micro demo and then open (http://localhost:8080/micro)
+in a webbrowser. If everything works correctly, a matrix of buttons should appear, which map the LED state
+on the Microboard itself. Clicking the buttons will toggle the LEDs.
 
 ## Requirements
 
