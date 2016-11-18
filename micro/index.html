@@ -1,0 +1,110 @@
+<head>
+    <style>
+        button.led {
+            background-color: red;
+        }
+        button {
+
+        }
+        DIV.BITSTRING {
+            margin-top: 10px;
+            border: 1px solid black;
+        }
+        DIV.BITSTRING > SPAN {
+            margin-right: 10px;
+        }
+    </style>
+    <script src='/lib/signature_parser.js'></script>
+    <script src='/lib/TypesBaseDatatypes.js'></script>
+    <script src='/lib/TypesManagementDatatypes.js'></script>
+    <script src='/lib/TypesFrameworkDatatypes.js'></script>
+    <script src='/lib/TypesAgentDatatypes.js'></script>
+    <script src='/lib/TypesBlockandMatrixDatatypes.js'></script>
+    <script src='/lib/TypesEvent&SubscriptionDatatypes.js'></script>
+    <script src='/lib/TypesWorkerDatatypes.js'></script>
+    <script src='/lib/TypesLibraryDatatypes.js'></script>
+    <script src='/lib/TypesNetworkDatatypes.js'></script>
+    <script src='/lib/TypesSamplingDatatypes.js'></script>
+    <script src='/lib/TypesTaskDatatypes.js'></script>
+    <script src='/lib/RemoteControlClasses.js'></script>
+    <script src='/lib/OCA.js'></script>
+    <script src='/lib/WebSocket.js'></script>
+    <script>
+        var ws = new WebSocket('ws://'+document.location.host);
+
+        var objects;
+
+        function bitstring_buttons(o) {
+            var DIV = document.createElement("DIV");
+            DIV.classList.add("BITSTRING");
+            var SPAN = document.createElement("SPAN");
+            DIV.appendChild(SPAN);
+
+            o.GetRole().then(function(r) {
+                SPAN.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
+            });
+            o.GetNrBits().then(function(N) {
+                var S;
+                var update_state = function(state) {
+                    console.log("received state for object %o:", o.ObjectNumber, state);
+                    S = state;
+                    for (var i = 0; i < S.length; i++) {
+                        B[i].classList.toggle("led", state[i]);
+                    }
+                };
+                var B = [];
+                for (var index = 0; index < N; index++) {
+                    var b = document.createElement("button");
+                    B[index] = b;
+
+
+                    b.appendChild(document.createTextNode("LED "+index));
+                    b.addEventListener("click", function(index) {
+                        var state = this.classList.contains("led");
+                        o.SetBit(index, !state);
+                    }.bind(b, index));
+
+                    DIV.appendChild(b);
+                }
+                o.on_property_changed("Bitstring", update_state).catch(function(err) { OCA.error("Subscription failed", err); });
+                o.GetBitstring().then(update_state);
+            });
+            return DIV;
+        }
+
+        ws.onopen = function() {
+            window.device = new OCA.RemoteDevice(new OCA.WebSocketConnection(ws));
+
+            device.discover_all().then(function (res) {
+                objects = res;
+                window.objects = res;
+                var text = 'Found '+objects.length+' Objects: \n';
+
+                for (var i = 0; i < res.length; i++) {
+                    text += res[i].ClassName + ' with ObjectNumber ' + res[i].ObjectNumber + '\n';
+                }
+
+                document.getElementById('messages').innerHTML = text;
+
+                var UI = document.getElementById("UI");
+
+                for (var i = 0; i < objects.length; i++) {
+                    var o = objects[i];
+                    if (o instanceof OCA.ControlClasses.OcaBitstringActuator) {
+                        UI.appendChild(bitstring_buttons(o));
+                    }
+                }
+            }).catch(function(res) { console.error(res); });
+        };
+    </script>
+    <body>
+        <h1> This is a simple sample interface representing the OCA PI Microdemo</h1>
+
+        <div id=UI>
+        </div>
+
+        <pre id='messages'>
+        </pre>
+
+    </body>
+</head>
