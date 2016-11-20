@@ -6,12 +6,18 @@
         button {
 
         }
-        DIV.BITSTRING {
+        #UI > DIV {
             margin-top: 10px;
             border: 1px solid black;
         }
         DIV.BITSTRING > SPAN {
             margin-right: 10px;
+        }
+        SPAN.true {
+            background-color: red;
+        }
+        SPAN.reading {
+            background-color: lightblue;
         }
     </style>
     <script src='/lib/signature_parser.js'></script>
@@ -34,14 +40,15 @@
 
         var objects;
 
-        function bitstring_buttons(o) {
+        function bitstring_actuator(o) {
             var DIV = document.createElement("DIV");
             DIV.classList.add("BITSTRING");
-            var SPAN = document.createElement("SPAN");
-            DIV.appendChild(SPAN);
+            DIV.classList.add("ACTUATOR");
+            var role = document.createElement("SPAN");
+            DIV.appendChild(role);
 
             o.GetRole().then(function(r) {
-                SPAN.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
+                role.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
             });
             o.GetNrBits().then(function(N) {
                 var S;
@@ -49,7 +56,7 @@
                     console.log("received state for object %o:", o.ObjectNumber, state);
                     S = state;
                     for (var i = 0; i < S.length; i++) {
-                        B[i].classList.toggle("led", state[i]);
+                        B[i].classList.toggle("true", state[i]);
                     }
                 };
                 var B = [];
@@ -60,7 +67,7 @@
 
                     b.appendChild(document.createTextNode("LED "+index));
                     b.addEventListener("click", function(index) {
-                        var state = this.classList.contains("led");
+                        var state = this.classList.contains("true");
                         o.SetBit(index, !state);
                     }.bind(b, index));
 
@@ -69,6 +76,64 @@
                 o.on_property_changed("Bitstring", update_state).catch(function(err) { OCA.error("Subscription failed", err); });
                 o.GetBitstring().then(update_state);
             });
+            return DIV;
+        }
+        
+        function bitstring_sensor(o) {
+            var DIV = document.createElement("DIV");
+            DIV.classList.add("BITSTRING");
+            DIV.classList.add("SENSOR");
+            var role = document.createElement("SPAN");
+            DIV.appendChild(role);
+
+            o.GetRole().then(function(r) {
+                role.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
+            });
+            o.GetNrBits().then(function(N) {
+                var S;
+                var update_state = function(state) {
+                    console.log("received state for object %o:", o.ObjectNumber, state);
+                    S = state;
+                    for (var i = 0; i < S.length; i++) {
+                        B[i].classList.toggle("true", state[i]);
+                    }
+                };
+                var B = [];
+                for (var index = 0; index < N; index++) {
+                    var b = document.createElement("SPAN");
+                    b.classList.add("SENSOR");
+                    B[index] = b;
+
+
+                    b.appendChild(document.createTextNode(index));
+                    DIV.appendChild(b);
+                }
+                o.on_property_changed("BitString", update_state).catch(function(err) { OCA.error("Subscription failed", err); });
+                o.GetBitString().then(update_state);
+            });
+            return DIV;
+        }
+
+        function int8_sensor(o) {
+            var DIV = document.createElement("DIV");
+            DIV.classList.add("INT8");
+            DIV.classList.add("SENSOR");
+            var role = document.createElement("SPAN");
+            DIV.appendChild(role);
+            var reading = document.createElement("SPAN");
+            reading.classList.add("reading");
+            DIV.appendChild(reading);
+
+            o.GetRole().then(function(r) {
+                role.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
+            });
+            var update_reading = function(val) {
+                var pos = (val + 128) / 2.55;
+                reading.style["margin-left"] = (pos*10) + "px";
+                reading.textContent = val;
+            }
+            o.on_property_changed("Reading", update_reading).catch(function(err) { OCA.error("Subscription failed", err); });
+            o.GetReading().then(update_reading);
             return DIV;
         }
 
@@ -91,9 +156,14 @@
                 for (var i = 0; i < objects.length; i++) {
                     var o = objects[i];
                     if (o instanceof OCA.ControlClasses.OcaBitstringActuator) {
-                        UI.appendChild(bitstring_buttons(o));
+                        UI.appendChild(bitstring_actuator(o));
+                    } else if (o instanceof OCA.ControlClasses.OcaBitstringSensor) {
+                        UI.appendChild(bitstring_sensor(o));
+                    } else if (o instanceof OCA.ControlClasses.OcaInt8Sensor) {
+                        UI.appendChild(int8_sensor(o));
                     }
                 }
+
             }).catch(function(res) { console.error(res); });
         };
     </script>
