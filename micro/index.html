@@ -137,33 +137,27 @@
 
         var objects;
 
-        function bitstring_actuator(o) {
+        function bitstring_actuator(o, sensor) {
             var DIV = document.createElement("DIV");
             DIV.setAttribute("id", "ACTUATOR" + o.ObjectNumber);
             DIV.classList.add("BITSTRING");
             DIV.classList.add("ACTUATOR");
-            //var role = document.createElement("SPAN");
-            //DIV.appendChild(role);
 
-            //o.GetRole().then(function(r) {
-                //role.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
-            //});
             o.GetNrBits().then(function(N) {
                 var S;
-                var update_state = function(state) {
-                    console.log("received state for object %o:", o.ObjectNumber, state);
+                var update_state = function(cls, state) {
                     S = state;
                     for (var i = 0; i < S.length; i++) {
-                        B[i].classList.toggle("true", state[i]);
+                        B[i].classList.toggle(cls, state[i]);
                     }
                 };
+                var update_actuator = update_state.bind(this, "true");
+                var update_sensor = update_state.bind(this, "pressed");
                 var B = [];
                 for (var index = 0; index < N; index++) {
                     var b = document.createElement("button");
                     B[index] = b;
 
-
-                    //b.appendChild(document.createTextNode("LED "+index));
                     b.addEventListener("click", function(index) {
                         var state = this.classList.contains("true");
                         o.SetBit(index, !state);
@@ -171,47 +165,18 @@
 
                     DIV.appendChild(b);
                 }
-                o.on_property_changed("Bitstring", update_state).catch(function(err) { OCA.error("Subscription failed", err); });
-                o.GetBitstring().then(update_state);
-            });
-            return DIV;
-        }
-        
-        function bitstring_sensor(o) {
-            var DIV = document.createElement("DIV");
-            DIV.classList.add("BITSTRING");
-            DIV.classList.add("SENSOR");
-            var role = document.createElement("SPAN");
-            DIV.appendChild(role);
+                o.on_property_changed("Bitstring", update_actuator)
+                        .catch(function(err) { OCA.error("Subscription failed", err); });
+                o.GetBitstring().then(update_actuator);
+                if (sensor) {
+                    sensor.on_property_changed("BitString", update_sensor)
+                        .catch(function(err) { OCA.error("Subscription failed", err); });
+                    sensor.GetBitString().then(update_sensor);
 
-            //o.GetRole().then(function(r) {
-                //role.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
-            //});
-            o.GetNrBits().then(function(N) {
-                var S;
-                var update_state = function(state) {
-                    console.log("received state for object %o:", o.ObjectNumber, state);
-                    S = state;
-                    for (var i = 0; i < S.length; i++) {
-                        B[i].classList.toggle("true", state[i]);
-                    }
-                };
-                var B = [];
-                for (var index = 0; index < N; index++) {
-                    var b = document.createElement("SPAN");
-                    b.classList.add("SENSOR");
-                    B[index] = b;
-
-
-                    b.appendChild(document.createTextNode(index));
-                    DIV.appendChild(b);
                 }
-                o.on_property_changed("BitString", update_state).catch(function(err) { OCA.error("Subscription failed", err); });
-                o.GetBitString().then(update_state);
             });
             return DIV;
         }
-
         function int8_sensor(o) {
             var DIV = document.createElement("DIV");
             DIV.classList.add("INT8");
@@ -222,9 +187,6 @@
             reading.classList.add("reading");
             DIV.appendChild(reading);
 
-            //o.GetRole().then(function(r) {
-                //role.appendChild(document.createTextNode(r + " ( " + o.ObjectNumber + " ) " ));
-            //});
             var update_reading = function(val) {
                 var pos = (val + 128) / 2.55;
                 reading.style["margin-left"] = (pos*10) + "px";
@@ -252,16 +214,16 @@
                 var UI = document.getElementById("UI");
 
                 for (var i = 0; i < objects.length; i++) {
+                    if (i == 11 || i == 14) continue;
                     var o = objects[i];
                     if (o instanceof OCA.ControlClasses.OcaBitstringActuator) {
                         UI.appendChild(bitstring_actuator(o));
-                    } else if (o instanceof OCA.ControlClasses.OcaBitstringSensor) {
-                        UI.appendChild(bitstring_sensor(o));
                     } else if (o instanceof OCA.ControlClasses.OcaInt8Sensor) {
                         UI.appendChild(int8_sensor(o));
                     }
                 }
-
+                // special case, we display those together
+                UI.appendChild(bitstring_actuator(objects[14], objects[11]));
             }).catch(function(res) { console.error(res); });
         };
     </script>
