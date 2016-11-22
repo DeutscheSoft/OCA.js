@@ -1,448 +1,454 @@
-<head>
-    <script src='/lib/signature_parser.js'></script>
-    <script src='/lib/TypesBaseDatatypes.js'></script>
-    <script src='/lib/TypesManagementDatatypes.js'></script>
-    <script src='/lib/TypesFrameworkDatatypes.js'></script>
-    <script src='/lib/TypesAgentDatatypes.js'></script>
-    <script src='/lib/TypesBlockandMatrixDatatypes.js'></script>
-    <script src='/lib/TypesEvent&SubscriptionDatatypes.js'></script>
-    <script src='/lib/TypesWorkerDatatypes.js'></script>
-    <script src='/lib/TypesLibraryDatatypes.js'></script>
-    <script src='/lib/TypesNetworkDatatypes.js'></script>
-    <script src='/lib/TypesSamplingDatatypes.js'></script>
-    <script src='/lib/TypesTaskDatatypes.js'></script>
-    <script src='/lib/RemoteControlClasses.js'></script>
-    <script src='/lib/OCA.js'></script>
-    <script src='/lib/WebSocket.js'></script>
-    <script>
-        var ws = new WebSocket('ws://'+document.location.host);
-
-        var objects;
-
-        function bitstring_actuator(o, sensor) {
-            var DIV = document.createElement("DIV");
-            DIV.setAttribute("id", "ACTUATOR" + o.ObjectNumber);
-            DIV.classList.add("BITSTRING");
-            DIV.classList.add("ACTUATOR");
-
-            o.GetNrBits().then(function(N) {
-                var S;
-                var update_state = function(cls, state) {
-                    S = state;
-                    for (var i = 0; i < S.length; i++) {
-                        B[i].classList.toggle(cls, state[i]);
+<html>
+    <head>
+    
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+            
+        <script src='/lib/signature_parser.js'></script>
+        <script src='/lib/TypesBaseDatatypes.js'></script>
+        <script src='/lib/TypesManagementDatatypes.js'></script>
+        <script src='/lib/TypesFrameworkDatatypes.js'></script>
+        <script src='/lib/TypesAgentDatatypes.js'></script>
+        <script src='/lib/TypesBlockandMatrixDatatypes.js'></script>
+        <script src='/lib/TypesEvent&SubscriptionDatatypes.js'></script>
+        <script src='/lib/TypesWorkerDatatypes.js'></script>
+        <script src='/lib/TypesLibraryDatatypes.js'></script>
+        <script src='/lib/TypesNetworkDatatypes.js'></script>
+        <script src='/lib/TypesSamplingDatatypes.js'></script>
+        <script src='/lib/TypesTaskDatatypes.js'></script>
+        <script src='/lib/RemoteControlClasses.js'></script>
+        <script src='/lib/OCA.js'></script>
+        <script src='/lib/WebSocket.js'></script>
+        <script>
+            var ws = new WebSocket('ws://'+document.location.host);
+    
+            var objects;
+    
+            function bitstring_actuator(o, sensor) {
+                var DIV = document.createElement("DIV");
+                DIV.setAttribute("id", "ACTUATOR" + o.ObjectNumber);
+                DIV.classList.add("BITSTRING");
+                DIV.classList.add("ACTUATOR");
+    
+                o.GetNrBits().then(function(N) {
+                    var S;
+                    var update_state = function(cls, state) {
+                        S = state;
+                        for (var i = 0; i < S.length; i++) {
+                            B[i].classList.toggle(cls, state[i]);
+                        }
+                    };
+                    var update_actuator = update_state.bind(this, "true");
+                    var update_sensor = update_state.bind(this, "pressed");
+                    var B = [];
+                    for (var index = 0; index < N; index++) {
+                        var b = document.createElement("button");
+                        B[index] = b;
+    
+                        b.addEventListener("click", function(index) {
+                            var state = this.classList.contains("true");
+                            o.SetBit(index, !state);
+                        }.bind(b, index));
+    
+                        DIV.appendChild(b);
                     }
-                };
-                var update_actuator = update_state.bind(this, "true");
-                var update_sensor = update_state.bind(this, "pressed");
-                var B = [];
-                for (var index = 0; index < N; index++) {
-                    var b = document.createElement("button");
-                    B[index] = b;
-
-                    b.addEventListener("click", function(index) {
-                        var state = this.classList.contains("true");
-                        o.SetBit(index, !state);
-                    }.bind(b, index));
-
-                    DIV.appendChild(b);
-                }
-                o.on_property_changed("Bitstring", update_actuator)
-                        .catch(function(err) { OCA.error("Subscription failed", err); });
-                o.GetBitstring().then(update_actuator);
-                if (sensor) {
-                    sensor.on_property_changed("BitString", update_sensor)
-                        .catch(function(err) { OCA.error("Subscription failed", err); });
-                    sensor.GetBitString().then(update_sensor);
-
-                }
-            });
-            return DIV;
-        }
-        function int8_sensor(o) {
-            var xmlns = "http://www.w3.org/2000/svg";
-            var SVG = document.createElementNS (xmlns, "svg");
-            SVG.setAttributeNS(null, "id", "SENSOR" + o.ObjectNumber);
-            SVG.classList.add("INT8");
-            SVG.classList.add("SENSOR");
-            SVG.setAttributeNS(null, "viewBox", "0 0 100 100");
-            
-            var base = document.createElementNS(xmlns, "circle");
-            base.classList.add("base");
-            base.setAttributeNS(null, "cx", "50");
-            base.setAttributeNS(null, "cy", "50");
-            base.setAttributeNS(null, "r", "40");
-            base.setAttributeNS(null, "transform", "rotate(135 50 50)");
-            SVG.appendChild(base);
-            
-            var value = document.createElementNS(xmlns, "circle");
-            value.classList.add("value");
-            value.setAttributeNS(null, "cx", "50");
-            value.setAttributeNS(null, "cy", "50");
-            value.setAttributeNS(null, "r", "40");
-            value.setAttributeNS(null, "transform", "rotate(135 50 50)");
-            SVG.appendChild(value);
-            
-            var label = document.createElementNS(xmlns, "text");
-            label.classList.add("label");
-            label.setAttributeNS(null, "x", "50");
-            label.setAttributeNS(null, "y", "55");
-            label.setAttributeNS(null, "text-anchor", "middle");
-            SVG.appendChild(label);
-            
-            var txt = document.createTextNode("");
-            label.appendChild(txt);
-            
-            var update_reading = function(val) {
-                var pos = Math.min(1, Math.max(0, (val + 128) / 255.));
-                value.style["stroke-dasharray"] = pos * 190 + " 1000";
-                value.style["stroke"] = hsv2css(0.3-pos*0.3, 1, 0.86);
-                txt.textContent = parseInt(pos * 100);
-            }
-            o.on_property_changed("Reading", update_reading).catch(function(err) { OCA.error("Subscription failed", err); });
-            o.GetReading().then(update_reading);
-            return SVG;
-        }
-
-        ws.onopen = function() {
-            window.device = new OCA.RemoteDevice(new OCA.WebSocketConnection(ws));
-
-            device.discover_all().then(function (res) {
-                objects = res;
-                window.objects = res;
-                var text = 'Found '+objects.length+' Objects: \n';
-
-                for (var i = 0; i < res.length; i++) {
-                    text += res[i].ClassName + ' with ObjectNumber ' + res[i].ObjectNumber + '\n';
-                }
-
-                document.getElementById('messages').innerHTML = text;
-
-                var UI = document.getElementById("UI");
-
-                for (var i = 0; i < objects.length; i++) {
-                    if (i == 11 || i == 14) continue;
-                    var o = objects[i];
-                    if (o instanceof OCA.ControlClasses.OcaBitstringActuator) {
-                        UI.appendChild(bitstring_actuator(o));
-                    } else if (o instanceof OCA.ControlClasses.OcaInt8Sensor) {
-                        UI.appendChild(int8_sensor(o));
+                    o.on_property_changed("Bitstring", update_actuator)
+                            .catch(function(err) { OCA.error("Subscription failed", err); });
+                    o.GetBitstring().then(update_actuator);
+                    if (sensor) {
+                        sensor.on_property_changed("BitString", update_sensor)
+                            .catch(function(err) { OCA.error("Subscription failed", err); });
+                        sensor.GetBitString().then(update_sensor);
+    
                     }
-                }
-                // special case, we display those together
-                UI.appendChild(bitstring_actuator(objects[14], objects[11]));
-            }).catch(function(res) { console.error(res); });
-        };
-        
-        function hsv2css(h, s, v) {
-            var r, g, b;
-            var i = Math.floor(h * 6);
-            var f = h * 6 - i;
-            var p = v * (1 - s);
-            var q = v * (1 - f * s);
-            var t = v * (1 - (1 - f) * s);
-            switch (i % 6) {
-                case 0: r = v, g = t, b = p; break;
-                case 1: r = q, g = v, b = p; break;
-                case 2: r = p, g = v, b = t; break;
-                case 3: r = p, g = q, b = v; break;
-                case 4: r = t, g = p, b = v; break;
-                case 5: r = v, g = p, b = q; break;
+                });
+                return DIV;
             }
-            return "rgb(" + parseInt(r * 255) + "," + parseInt(g * 255) + "," + parseInt(b * 255) + ")";
-        }
-    </script>
-    <style>
-        
-        html, body {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
-        }
-        body {
-            background: #222;
-            color: #ccc;
-            font-family: sans-serif;
-            overflow: hidden;
-            text-align: center;
-        }
-        body::before {
-            content: "";
-            display: inline-block;
-            height: 100%;
-            width: 0px;
-            vertical-align: middle;
-        }
-        h1 {
-            font-weight: 200;
-        }
-        h2 {
-            font-weight: 200;
-        }
-        a {
-            color: white;
-        }
-        button {
-            display: block;
-            border: none;
-            margin: 1px;
-            width: 32px;
-            height: 24px;
-            -webkit-transform: rotate(180deg);
-            -moz-transform: rotate(180deg);
-            -ms-transform: rotate(180deg);
-            -o-transform: rotate(180deg);
-            transform: rotate(180deg);
-            color: #ccc;
-            outline: 0;
-            cursor: pointer;
-            position: relative;
-            background: #000;
-            z-index: 1;
-        }
-        button.true {
+            function int8_sensor(o) {
+                var xmlns = "http://www.w3.org/2000/svg";
+                var SVG = document.createElementNS (xmlns, "svg");
+                SVG.setAttributeNS(null, "id", "SENSOR" + o.ObjectNumber);
+                SVG.classList.add("INT8");
+                SVG.classList.add("SENSOR");
+                SVG.setAttributeNS(null, "viewBox", "0 0 100 100");
+                
+                var base = document.createElementNS(xmlns, "circle");
+                base.classList.add("base");
+                base.setAttributeNS(null, "cx", "50");
+                base.setAttributeNS(null, "cy", "50");
+                base.setAttributeNS(null, "r", "40");
+                base.setAttributeNS(null, "transform", "rotate(135 50 50)");
+                SVG.appendChild(base);
+                
+                var value = document.createElementNS(xmlns, "circle");
+                value.classList.add("value");
+                value.setAttributeNS(null, "cx", "50");
+                value.setAttributeNS(null, "cy", "50");
+                value.setAttributeNS(null, "r", "40");
+                value.setAttributeNS(null, "transform", "rotate(135 50 50)");
+                SVG.appendChild(value);
+                
+                var label = document.createElementNS(xmlns, "text");
+                label.classList.add("label");
+                label.setAttributeNS(null, "x", "50");
+                label.setAttributeNS(null, "y", "55");
+                label.setAttributeNS(null, "text-anchor", "middle");
+                SVG.appendChild(label);
+                
+                var txt = document.createTextNode("");
+                label.appendChild(txt);
+                
+                var update_reading = function(val) {
+                    var pos = Math.min(1, Math.max(0, (val + 128) / 255.));
+                    value.style["stroke-dasharray"] = pos * 190 + " 1000";
+                    value.style["stroke"] = hsv2css(0.3-pos*0.3, 1, 0.86);
+                    txt.textContent = parseInt(pos * 100);
+                }
+                o.on_property_changed("Reading", update_reading).catch(function(err) { OCA.error("Subscription failed", err); });
+                o.GetReading().then(update_reading);
+                return SVG;
+            }
+    
+            ws.onopen = function() {
+                window.device = new OCA.RemoteDevice(new OCA.WebSocketConnection(ws));
+    
+                device.discover_all().then(function (res) {
+                    objects = res;
+                    window.objects = res;
+                    var text = 'Found '+objects.length+' Objects: \n';
+    
+                    for (var i = 0; i < res.length; i++) {
+                        text += res[i].ClassName + ' with ObjectNumber ' + res[i].ObjectNumber + '\n';
+                    }
+    
+                    document.getElementById('messages').innerHTML = text;
+    
+                    var UI = document.getElementById("UI");
+    
+                    for (var i = 0; i < objects.length; i++) {
+                        if (i == 11 || i == 14) continue;
+                        var o = objects[i];
+                        if (o instanceof OCA.ControlClasses.OcaBitstringActuator) {
+                            UI.appendChild(bitstring_actuator(o));
+                        } else if (o instanceof OCA.ControlClasses.OcaInt8Sensor) {
+                            UI.appendChild(int8_sensor(o));
+                        }
+                    }
+                    // special case, we display those together
+                    UI.appendChild(bitstring_actuator(objects[14], objects[11]));
+                }).catch(function(res) { console.error(res); });
+            };
             
-        }
-        button.pressed {
-            -webkit-box-shadow: 0 0 20px red, 0 0 2px red;
-            -moz-box-shadow: 0 0 20px red, 0 0 2px red;
-            -ms-box-shadow: 0 0 20px red, 0 0 2px red;
-            -o-box-shadow: 0 0 20px red, 0 0 2px red;
-            box-shadow: 0 0 20px red, 0 0 2px red;
-            z-index: 10;
-        }
-        button::after {
-            content: "";
-            display: block;
-            position: absolute;
-            top: 8px;
-            bottom: 8px;
-            right: 8px;
-            left: 8px;
-            padding: 0;
-            background: white;
-            -webkit-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
-                        0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
-            -moz-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
-                        0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
-            -ms-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
-                        0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
-            -o-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
-                        0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
-            box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
-                        0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
-            background: black;
-        }
-        
-        button:nth-child(1)::after,
-        button:nth-child(2)::after,
-        button:nth-child(3)::after {
-            background: rgb(50,86,30);
-            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMzMjU2MWUiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMDAyMzAxIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-            background: -moz-radial-gradient(center, ellipse cover, rgba(50,86,30,1) 0%, rgba(0,35,1,1) 100%);
-            background: -webkit-radial-gradient(center, ellipse cover, rgba(50,86,30,1) 0%,rgba(0,35,1,1) 100%);
-            background: radial-gradient(ellipse at center, rgba(50,86,30,1) 0%,rgba(0,35,1,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#32561e', endColorstr='#002301',GradientType=1 );
-        }
-        button:nth-child(4)::after,
-        button:nth-child(5)::after {
-            background: rgb(114,59,34);
-            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMSUiIHN0b3AtY29sb3I9IiM3MjNiMjIiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMzUxODAyIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-            background: -moz-radial-gradient(center, ellipse cover, rgba(114,59,34,1) 1%, rgba(53,24,2,1) 100%);
-            background: -webkit-radial-gradient(center, ellipse cover, rgba(114,59,34,1) 1%,rgba(53,24,2,1) 100%);
-            background: radial-gradient(ellipse at center, rgba(114,59,34,1) 1%,rgba(53,24,2,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#723b22', endColorstr='#351802',GradientType=1 );
-        }
-        #ACTUATOR10400 button::after,
-        button:nth-child(6)::after {
-            background: rgb(86,8,8);
-            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM1NjA4MDgiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMjYwMDAwIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-            background: -moz-radial-gradient(center, ellipse cover, rgba(86,8,8,1) 0%, rgba(38,0,0,1) 100%);
-            background: -webkit-radial-gradient(center, ellipse cover, rgba(86,8,8,1) 0%,rgba(38,0,0,1) 100%);
-            background: radial-gradient(ellipse at center, rgba(86,8,8,1) 0%,rgba(38,0,0,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#560808', endColorstr='#260000',GradientType=1 );
-        }
-        
-        button.true:nth-child(1)::after,
-        button.true:nth-child(2)::after,
-        button.true:nth-child(3)::after {
-            background: rgb(147,229,80);
-            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM5M2U1NTAiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMDA4YTAwIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-            background: -moz-radial-gradient(center, ellipse cover, rgba(147,229,80,1) 0%, rgba(0,138,0,1) 100%);
-            background: -webkit-radial-gradient(center, ellipse cover, rgba(147,229,80,1) 0%,rgba(0,138,0,1) 100%);
-            background: radial-gradient(ellipse at center, rgba(147,229,80,1) 0%,rgba(0,138,0,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#93e550', endColorstr='#008a00',GradientType=1 );
-            box-shadow: 0 0 10px rgba(147,229,80, 0.3);
-        }
-        button.true:nth-child(4)::after,
-        button.true:nth-child(5)::after {
-            background: rgb(255,216,76);
-            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmQ4NGMiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZWY3YzA5IiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-            background: -moz-radial-gradient(center, ellipse cover, rgba(255,216,76,1) 0%, rgba(239,124,9,1) 100%);
-            background: -webkit-radial-gradient(center, ellipse cover, rgba(255,216,76,1) 0%,rgba(239,124,9,1) 100%);
-            background: radial-gradient(ellipse at center, rgba(255,216,76,1) 0%,rgba(239,124,9,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd84c', endColorstr='#ef7c09',GradientType=1 );
-            box-shadow: 0 0 10px rgba(255,216,76, 0.3);
-        }
-        #ACTUATOR10400 button.true::after,
-        button.true:nth-child(6)::after {
-            background: rgb(255,48,25);
-            background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjMwMTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjY2YwNDA0IiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-            background: -moz-radial-gradient(center, ellipse cover, rgba(255,48,25,1) 0%, rgba(207,4,4,1) 100%);
-            background: -webkit-radial-gradient(center, ellipse cover, rgba(255,48,25,1) 0%,rgba(207,4,4,1) 100%);
-            background: radial-gradient(ellipse at center, rgba(255,48,25,1) 0%,rgba(207,4,4,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', endColorstr='#cf0404',GradientType=1 );
-            box-shadow: 0 0 10px rgba(255,48,25, 0.3);
-        }
-        
-        #UI > .ACTUATOR {
-            display: inline-block;
-            -webkit-transform: rotate(180deg);
-            -moz-transform: rotate(180deg);
-            -ms-transform: rotate(180deg);
-            -o-transform: rotate(180deg);
-            transform: rotate(180deg);
-        }
-        #UI > #ACTUATOR10400 {
-            -webkit-transform: none;
-            -moz-transform: none;
-            -ms-transform: none;
-            -o-transform: none;
-            transform: none;
-            display: block;
-        }
-        #UI > #ACTUATOR10400 button {
-            -webkit-transform: none;
-            -moz-transform: none;
-            -ms-transform: none;
-            -o-transform: none;
-            transform: none;
-            display: inline-block;
-        }
-        
-        svg {
-            display: block;
-            width: 100px;
-            height: 100px;
+            function hsv2css(h, s, v) {
+                var r, g, b;
+                var i = Math.floor(h * 6);
+                var f = h * 6 - i;
+                var p = v * (1 - s);
+                var q = v * (1 - f * s);
+                var t = v * (1 - (1 - f) * s);
+                switch (i % 6) {
+                    case 0: r = v, g = t, b = p; break;
+                    case 1: r = q, g = v, b = p; break;
+                    case 2: r = p, g = v, b = t; break;
+                    case 3: r = p, g = q, b = v; break;
+                    case 4: r = t, g = p, b = v; break;
+                    case 5: r = v, g = p, b = q; break;
+                }
+                return "rgb(" + parseInt(r * 255) + "," + parseInt(g * 255) + "," + parseInt(b * 255) + ")";
+            }
+        </script>
+        <style>
             
-        }
-        circle {
-            fill: none;
-            stroke-width: 8;
-            stroke-dasharray: 190 1000;
-        }
-        svg text {
-            fill: white;
-        }
-        svg circle.base {
-            stroke: rgba(0, 0, 0, 1);
-        }
-        svg circle.value {
-            stroke: rgb(147,229,80);
-            stroke-dasharray: 0 1000;
-        }
-        
-        
-        
-        /* DEDICATED */
-        
-        #UI {
-            position: relative;
-            display: inline-block;
-            vertical-align: middle;
-            text-align: left;
-        }
-        
-        #ACTUATOR10000 {
-            margin-left: 100px;
-        }
-        #ACTUATOR10007 {
-            margin-right: 100px;
-        }
-        #ACTUATOR10400 {
-            margin-left: 100px;
-            margin-top: 20px;
-        }
-        #SENSOR10300 {
-            position: absolute;
-            top: 30px;
-            left: 0;
-        }
-        #SENSOR10301 {
-            position: absolute;
-            top: 30px;
-            right: 0;
-        }
-        
-        #messages, #info {
-            position: absolute;
-            z-index: 100;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            -webkit-transform: translateY(100%);
-            -moz-transform: translateY(100%);
-            -ms-transform: translateY(100%);
-            -o-transform: translateY(100%);
-            transform: translateY(100%);
-            margin: 0;
-            padding: 1em;
-            box-sizing: border-box;
-            -webkit-transition: transform 0.5s;
-            -moz-transition: transform 0.5s;
-            -ms-transition: transform 0.5s;
-            -o-transition: transform 0.5s;
-            transition: transform 0.5s;
-            max-height: 100%;
-            text-align: left;
-        }
-        #info {
+            html, body {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            body {
+                background: #222;
+                color: #ccc;
+                font-family: sans-serif;
+                overflow: hidden;
+                text-align: center;
+            }
+            body::before {
+                content: "";
+                display: inline-block;
+                height: 100%;
+                width: 0px;
+                vertical-align: middle;
+            }
+            h1 {
+                font-weight: 200;
+            }
+            h2 {
+                font-weight: 200;
+            }
+            a {
+                color: white;
+            }
+            button {
+                display: block;
+                border: none;
+                margin: 1px;
+                width: 32px;
+                height: 24px;
+                -webkit-transform: rotate(180deg);
+                -moz-transform: rotate(180deg);
+                -ms-transform: rotate(180deg);
+                -o-transform: rotate(180deg);
+                transform: rotate(180deg);
+                color: #ccc;
+                outline: 0;
+                cursor: pointer;
+                position: relative;
+                background: #000;
+                z-index: 1;
+            }
+            button.true {
+                
+            }
+            button.pressed {
+                -webkit-box-shadow: 0 0 20px red, 0 0 2px red;
+                -moz-box-shadow: 0 0 20px red, 0 0 2px red;
+                -ms-box-shadow: 0 0 20px red, 0 0 2px red;
+                -o-box-shadow: 0 0 20px red, 0 0 2px red;
+                box-shadow: 0 0 20px red, 0 0 2px red;
+                z-index: 10;
+            }
+            button::after {
+                content: "";
+                display: block;
+                position: absolute;
+                top: 8px;
+                bottom: 8px;
+                right: 8px;
+                left: 8px;
+                padding: 0;
+                background: white;
+                -webkit-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
+                            0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
+                -moz-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
+                            0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
+                -ms-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
+                            0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
+                -o-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
+                            0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
+                            0 -0.5px 0.5px rgba(0, 0, 0, 0.6);
+                background: black;
+            }
             
-        }
-        #messages::before,
-        #info::before {
-            width: 32px;
-            height: 32px;
-            position: absolute;
-            top: -32px;
-            left: 0;
-            background: black;
-            display: block;
-            content: "";
-            cursor: pointer;
-            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 184 136" width="184" height="136" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g transform="translate(-32 -860.36)"><path d="m0 0v104h120l-8 32 48-32h24v-104h-184zm52 40a12 12 0 0 1 12 12 12 12 0 0 1 -12 12 12 12 0 0 1 -12 -12 12 12 0 0 1 12 -12zm40 0a12 12 0 0 1 12 12 12 12 0 0 1 -12 12 12 12 0 0 1 -12 -12 12 12 0 0 1 12 -12zm40 0a12 12 0 0 1 12 12 12 12 0 0 1 -12 12 12 12 0 0 1 -12 -12 12 12 0 0 1 12 -12z" transform="translate(32 860.36)" fill="#fff"/></g></svg>');
-            -webkit-background-size: 60% auto;
-            -moz-background-size: 60% auto;
-            -ms-background-size: 60% auto;
-            -o-background-size: 60% auto;
-            background-size: 60% auto;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-        #messages:hover {
-            transform: none;
-        }
-        
-        #info::before {
-            right: 0;
-            left: auto;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256"><path fill="white" d="m128 0a128 128 0 0 0 -128 128 128 128 0 0 0 128 128 128 128 0 0 0 128 -128 128 128 0 0 0 -128 -128zm13.69 36.939c9.76 0.147 19.48 3.543 23.11 10.145 5.79 10.437 0.57 25.017-15.81 29.035-3.26 0.799-6.72 1.128-10.16 1.127-12.78 0.548-25.43-6.378-26.03-15.457-1.39-9.611 4.86-21.038 19.34-23.912 3.04-0.675 6.29-0.986 9.55-0.938zm-1.71 48.596c2.62 0.047 5.23 0.244 7.84 0.625 9.45 1.936 9.03 10.036 8.4 15.52-2.02 20.36-5.19 40.66-7.71 60.99l-5.1 38.73c7.14-0.88 18.96-8.55 23.25-2.12-2.57 5.72-12.38 7.55-19.35 10.12-13.8 3.91-29.25 7.29-44.21 4.97-10.22-1.81-11.597-10.15-10.27-16.24 4.142-32.72 8.14-65.45 12.22-98.171-6.443 1.111-20.463 8.231-20.898-0.033 5.319-5.036 14.74-6.768 22.598-9.272 10.53-2.699 21.88-5.321 33.23-5.119z"/></svg>');
-        }
-        #info:hover {
-            transform: none;
-        }
-    </style>
-</head>
-<body><div id=UI></div><pre id='messages'></pre><div id="info">
-    <h1>Demonstrating AES70 with OCA PI and OCA.js</h1>
-    <p>
-        This demo is ...
-    </p>
-    <h2>Components</h2>
-    <ul>
-        <li><strong>Focusrite OCA PI:</strong> A small PCB with some actuators and sensors controllable via AES70 made by <a href="https://focusrite.de/" target="_blank">Focusrite</a></li>
-        <li><strong>OCA.js:</strong> A AES70 implementation in JavaScript by <a href="http://deuso.de" target="_blank">DeusO GmbH</li>
-    </ul>
-</div></body>
+            button:nth-child(1)::after,
+            button:nth-child(2)::after,
+            button:nth-child(3)::after {
+                background: rgb(50,86,30);
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMzMjU2MWUiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMDAyMzAxIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-radial-gradient(center, ellipse cover, rgba(50,86,30,1) 0%, rgba(0,35,1,1) 100%);
+                background: -webkit-radial-gradient(center, ellipse cover, rgba(50,86,30,1) 0%,rgba(0,35,1,1) 100%);
+                background: radial-gradient(ellipse at center, rgba(50,86,30,1) 0%,rgba(0,35,1,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#32561e', endColorstr='#002301',GradientType=1 );
+            }
+            button:nth-child(4)::after,
+            button:nth-child(5)::after {
+                background: rgb(114,59,34);
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMSUiIHN0b3AtY29sb3I9IiM3MjNiMjIiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMzUxODAyIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-radial-gradient(center, ellipse cover, rgba(114,59,34,1) 1%, rgba(53,24,2,1) 100%);
+                background: -webkit-radial-gradient(center, ellipse cover, rgba(114,59,34,1) 1%,rgba(53,24,2,1) 100%);
+                background: radial-gradient(ellipse at center, rgba(114,59,34,1) 1%,rgba(53,24,2,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#723b22', endColorstr='#351802',GradientType=1 );
+            }
+            #ACTUATOR10400 button::after,
+            button:nth-child(6)::after {
+                background: rgb(86,8,8);
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM1NjA4MDgiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMjYwMDAwIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-radial-gradient(center, ellipse cover, rgba(86,8,8,1) 0%, rgba(38,0,0,1) 100%);
+                background: -webkit-radial-gradient(center, ellipse cover, rgba(86,8,8,1) 0%,rgba(38,0,0,1) 100%);
+                background: radial-gradient(ellipse at center, rgba(86,8,8,1) 0%,rgba(38,0,0,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#560808', endColorstr='#260000',GradientType=1 );
+            }
+            
+            button.true:nth-child(1)::after,
+            button.true:nth-child(2)::after,
+            button.true:nth-child(3)::after {
+                background: rgb(147,229,80);
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM5M2U1NTAiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMDA4YTAwIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-radial-gradient(center, ellipse cover, rgba(147,229,80,1) 0%, rgba(0,138,0,1) 100%);
+                background: -webkit-radial-gradient(center, ellipse cover, rgba(147,229,80,1) 0%,rgba(0,138,0,1) 100%);
+                background: radial-gradient(ellipse at center, rgba(147,229,80,1) 0%,rgba(0,138,0,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#93e550', endColorstr='#008a00',GradientType=1 );
+                box-shadow: 0 0 10px rgba(147,229,80, 0.3);
+            }
+            button.true:nth-child(4)::after,
+            button.true:nth-child(5)::after {
+                background: rgb(255,216,76);
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmQ4NGMiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZWY3YzA5IiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-radial-gradient(center, ellipse cover, rgba(255,216,76,1) 0%, rgba(239,124,9,1) 100%);
+                background: -webkit-radial-gradient(center, ellipse cover, rgba(255,216,76,1) 0%,rgba(239,124,9,1) 100%);
+                background: radial-gradient(ellipse at center, rgba(255,216,76,1) 0%,rgba(239,124,9,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffd84c', endColorstr='#ef7c09',GradientType=1 );
+                box-shadow: 0 0 10px rgba(255,216,76, 0.3);
+            }
+            #ACTUATOR10400 button.true::after,
+            button.true:nth-child(6)::after {
+                background: rgb(255,48,25);
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjMwMTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjY2YwNDA0IiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-radial-gradient(center, ellipse cover, rgba(255,48,25,1) 0%, rgba(207,4,4,1) 100%);
+                background: -webkit-radial-gradient(center, ellipse cover, rgba(255,48,25,1) 0%,rgba(207,4,4,1) 100%);
+                background: radial-gradient(ellipse at center, rgba(255,48,25,1) 0%,rgba(207,4,4,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', endColorstr='#cf0404',GradientType=1 );
+                box-shadow: 0 0 10px rgba(255,48,25, 0.3);
+            }
+            
+            #UI > .ACTUATOR {
+                display: inline-block;
+                -webkit-transform: rotate(180deg);
+                -moz-transform: rotate(180deg);
+                -ms-transform: rotate(180deg);
+                -o-transform: rotate(180deg);
+                transform: rotate(180deg);
+            }
+            #UI > #ACTUATOR10400 {
+                -webkit-transform: none;
+                -moz-transform: none;
+                -ms-transform: none;
+                -o-transform: none;
+                transform: none;
+                display: block;
+            }
+            #UI > #ACTUATOR10400 button {
+                -webkit-transform: none;
+                -moz-transform: none;
+                -ms-transform: none;
+                -o-transform: none;
+                transform: none;
+                display: inline-block;
+            }
+            
+            svg {
+                display: block;
+                width: 100px;
+                height: 100px;
+                
+            }
+            circle {
+                fill: none;
+                stroke-width: 8;
+                stroke-dasharray: 190 1000;
+            }
+            svg text {
+                fill: white;
+            }
+            svg circle.base {
+                stroke: rgba(0, 0, 0, 1);
+            }
+            svg circle.value {
+                stroke: rgb(147,229,80);
+                stroke-dasharray: 0 1000;
+            }
+            
+            
+            
+            /* DEDICATED */
+            
+            #UI {
+                position: relative;
+                display: inline-block;
+                vertical-align: middle;
+                text-align: left;
+            }
+            
+            #ACTUATOR10000 {
+                margin-left: 100px;
+            }
+            #ACTUATOR10007 {
+                margin-right: 100px;
+            }
+            #ACTUATOR10400 {
+                margin-left: 100px;
+                margin-top: 20px;
+            }
+            #SENSOR10300 {
+                position: absolute;
+                top: 30px;
+                left: 0;
+            }
+            #SENSOR10301 {
+                position: absolute;
+                top: 30px;
+                right: 0;
+            }
+            
+            #messages, #info {
+                position: absolute;
+                z-index: 100;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                -webkit-transform: translateY(100%);
+                -moz-transform: translateY(100%);
+                -ms-transform: translateY(100%);
+                -o-transform: translateY(100%);
+                transform: translateY(100%);
+                margin: 0;
+                padding: 1em;
+                box-sizing: border-box;
+                -webkit-transition: transform 0.5s;
+                -moz-transition: transform 0.5s;
+                -ms-transition: transform 0.5s;
+                -o-transition: transform 0.5s;
+                transition: transform 0.5s;
+                max-height: 100%;
+                text-align: left;
+            }
+            #info {
+                
+            }
+            #messages::before,
+            #info::before {
+                width: 32px;
+                height: 32px;
+                position: absolute;
+                top: -32px;
+                left: 0;
+                background: black;
+                display: block;
+                content: "";
+                cursor: pointer;
+                background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 184 136" width="184" height="136" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g transform="translate(-32 -860.36)"><path d="m0 0v104h120l-8 32 48-32h24v-104h-184zm52 40a12 12 0 0 1 12 12 12 12 0 0 1 -12 12 12 12 0 0 1 -12 -12 12 12 0 0 1 12 -12zm40 0a12 12 0 0 1 12 12 12 12 0 0 1 -12 12 12 12 0 0 1 -12 -12 12 12 0 0 1 12 -12zm40 0a12 12 0 0 1 12 12 12 12 0 0 1 -12 12 12 12 0 0 1 -12 -12 12 12 0 0 1 12 -12z" transform="translate(32 860.36)" fill="#fff"/></g></svg>');
+                -webkit-background-size: 60% auto;
+                -moz-background-size: 60% auto;
+                -ms-background-size: 60% auto;
+                -o-background-size: 60% auto;
+                background-size: 60% auto;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+            #messages:hover {
+                transform: none;
+            }
+            
+            #info::before {
+                right: 0;
+                left: auto;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256"><path fill="white" d="m128 0a128 128 0 0 0 -128 128 128 128 0 0 0 128 128 128 128 0 0 0 128 -128 128 128 0 0 0 -128 -128zm13.69 36.939c9.76 0.147 19.48 3.543 23.11 10.145 5.79 10.437 0.57 25.017-15.81 29.035-3.26 0.799-6.72 1.128-10.16 1.127-12.78 0.548-25.43-6.378-26.03-15.457-1.39-9.611 4.86-21.038 19.34-23.912 3.04-0.675 6.29-0.986 9.55-0.938zm-1.71 48.596c2.62 0.047 5.23 0.244 7.84 0.625 9.45 1.936 9.03 10.036 8.4 15.52-2.02 20.36-5.19 40.66-7.71 60.99l-5.1 38.73c7.14-0.88 18.96-8.55 23.25-2.12-2.57 5.72-12.38 7.55-19.35 10.12-13.8 3.91-29.25 7.29-44.21 4.97-10.22-1.81-11.597-10.15-10.27-16.24 4.142-32.72 8.14-65.45 12.22-98.171-6.443 1.111-20.463 8.231-20.898-0.033 5.319-5.036 14.74-6.768 22.598-9.272 10.53-2.699 21.88-5.321 33.23-5.119z"/></svg>');
+            }
+            #info:hover {
+                transform: none;
+            }
+        </style>
+    </head>
+    <body><div id=UI></div><pre id='messages'></pre><div id="info">
+        <h1>Demonstrating AES70 with OCA PI and OCA.js</h1>
+        <p>
+            This demo is ...
+        </p>
+        <h2>Components</h2>
+        <ul>
+            <li><strong>Focusrite OCA PI:</strong> A small PCB with some actuators and sensors controllable via AES70 made by <a href="https://focusrite.de/" target="_blank">Focusrite</a></li>
+            <li><strong>OCA.js:</strong> A AES70 implementation in JavaScript by <a href="http://deuso.de" target="_blank">DeusO GmbH</li>
+        </ul>
+    </div></body>
+</html>
