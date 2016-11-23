@@ -409,6 +409,7 @@
                 position: absolute;
                 top: 49%;
                 left: 50%;
+                
                 -webkit-transform: translate(-50%, -50%);
                 -moz-transform: translate(-50%, -50%);
                 -ms-transform: translate(-50%, -50%);
@@ -420,43 +421,48 @@
                 content: "";
                 width: 128px;
                 height: 128px;
+                overflow: hidden;
                 position: absolute;
                 top: 50%;
                 left: 50%;
+                
+                -webkit-transform-origin: 64px 64px;
+                -moz-transform-origin: 64px 64px;
+                -o-transform-origin: 64px 64px;
+                transform-origin: 64px 64px;
+                
                 -webkit-transform: translate(-50%, -50%);
                 -moz-transform: translate(-50%, -50%);
                 -ms-transform: translate(-50%, -50%);
                 -o-transform: translate(-50%, -50%);
                 transform: translate(-50%, -50%);
+                
                 background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><circle style="stroke-width:8; stroke-dasharray: 200 8 100 8 50 8 25 8 12 8 8 16 8 32 8 64 8 1000  ; fill: none; stroke: #fff" cy="128" cx="128" r="100" stroke="#fff"/></svg>');
                 background-repeat: no-repeat;
                 background-position: center;
-                -webkit-transform-origin: 0% 0%;
-                -moz-transform-origin: 0% 0%;
-                -o-transform-origin: 0% 0%;
-                transform-origin: 0% 0%;
+                
                 animation: rotate 2s linear infinite;
                 opacity: 0.2;
             }
             @-webkit-keyframes rotate {
-                from { -webkit-transform: rotate(360deg) translate(-50%, -50%); }
-                to { -webkit-transform: rotate(0deg) translate(-50%, -50%); }
+                from { -webkit-transform: translate(-50%, -50%) rotate(360deg); }
+                to { -webkit-transform: translate(-50%, -50%) rotate(0deg); }
             }
             @-moz-keyframes rotate {
-                from { -moz-transform: rotate(360deg) translate(-50%, -50%); }
-                to { -moz-transform: rotate(0deg) translate(-50%, -50%); }
+                from { -moz-transform: translate(-50%, -50%) rotate(360deg); }
+                to { -moz-transform: translate(-50%, -50%) rotate(0deg); }
             }
             @-ms-keyframes rotate {
-                from { -ms-transform: rotate(360deg) translate(-50%, -50%); }
-                to { -ms-transform: rotate(0deg) translate(-50%, -50%); }
+                from { -ms-transform: translate(-50%, -50%) rotate(360deg); }
+                to { -ms-transform: translate(-50%, -50%) rotate(0deg); }
             }
             @-o-keyframes rotate {
-                from { -o-transform: rotate(360deg) translate(-50%, -50%); }
-                to { -o-transform: rotate(0deg) translate(-50%, -50%); }
+                from { -o-transform: translate(-50%, -50%) rotate(360deg); }
+                to { -o-transform: translate(-50%, -50%) rotate(0deg); }
             }
             @keyframes rotate {
-                from { transform: rotate(360deg) translate(-50%, -50%); }
-                to { transform: rotate(0deg) translate(-50%, -50%); }
+                from { -webkit-transform: translate(-50%, -50%) rotate(360deg); }
+                to { -webkit-transform: translate(-50%, -50%) rotate(0deg); }
             }
             
             #ACTUATOR10000 {
@@ -509,11 +515,11 @@
             }
             #messages::before,
             #info::before {
-                width: 48px;
-                height: 48px;
+                width: 42px;
+                height: 42px;
                 position: absolute;
-                top: -48px;
-                left: 0;
+                top: -42px;
+                right: 44px;
                 background: black;
                 display: block;
                 content: "";
