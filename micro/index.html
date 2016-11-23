@@ -135,6 +135,8 @@
                     // special case, we display those together
                     UI.appendChild(bitstring_actuator(objects[14], objects[11]));
                 }).catch(function(res) { console.error(res); });
+                
+                document.body.classList.remove("loading");
             };
             
             function hsv2css(h, s, v) {
@@ -396,6 +398,65 @@
                 text-align: left;
                 padding: 10px;
                 z-index: 1;
+                width: 572px;
+                height: 220px;
+            }
+            .loading #UI::before {
+                content: "Loading...";
+                width: 128px;
+                height: 1em;
+                text-align: center;
+                position: absolute;
+                top: 49%;
+                left: 50%;
+                -webkit-transform: translate(-50%, -50%);
+                -moz-transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                -o-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+                opacity: 0.33;
+            }
+            .loading #UI::after {
+                content: "";
+                width: 128px;
+                height: 128px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                -webkit-transform: translate(-50%, -50%);
+                -moz-transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                -o-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><circle style="stroke-width:8; stroke-dasharray: 200 8 100 8 50 8 25 8 12 8 8 16 8 32 8 64 8 1000  ; fill: none; stroke: #fff" cy="128" cx="128" r="100" stroke="#fff"/></svg>');
+                background-repeat: no-repeat;
+                background-position: center;
+                -webkit-transform-origin: 0% 0%;
+                -moz-transform-origin: 0% 0%;
+                -o-transform-origin: 0% 0%;
+                transform-origin: 0% 0%;
+                animation: rotate 2s linear infinite;
+                opacity: 0.2;
+            }
+            @-webkit-keyframes rotate {
+                from { -webkit-transform: rotate(360deg) translate(-50%, -50%); }
+                to { -webkit-transform: rotate(0deg) translate(-50%, -50%); }
+            }
+            @-moz-keyframes rotate {
+                from { -moz-transform: rotate(360deg) translate(-50%, -50%); }
+                to { -moz-transform: rotate(0deg) translate(-50%, -50%); }
+            }
+            @-ms-keyframes rotate {
+                from { -ms-transform: rotate(360deg) translate(-50%, -50%); }
+                to { -ms-transform: rotate(0deg) translate(-50%, -50%); }
+            }
+            @-o-keyframes rotate {
+                from { -o-transform: rotate(360deg) translate(-50%, -50%); }
+                to { -o-transform: rotate(0deg) translate(-50%, -50%); }
+            }
+            @keyframes rotate {
+                from { transform: rotate(360deg) translate(-50%, -50%); }
+                to { transform: rotate(0deg) translate(-50%, -50%); }
             }
             
             #ACTUATOR10000 {
@@ -478,7 +539,7 @@
             }
         </style>
     </head>
-    <body><div id=UI></div><pre id='messages'></pre><div id="info">
+    <body class=loading><div id=UI></div><pre id='messages'></pre><div id="info">
         <h1>Demonstrating AES70 with OCA PI and OCA.js</h1>
         <p>
             This demo is ...
