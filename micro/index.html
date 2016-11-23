@@ -98,7 +98,7 @@
                 var update_reading = function(v) {
                     var val = Math.min(1, Math.max(0, (v + 128) / 255.));
                     var pos = parseInt(val * 36) / 36.;
-                    value.style["stroke-dasharray"] = "0," + (pos * 251.33) + ",1,1000";// 0, 243.5, 8, 1000
+                    value.style["stroke-dasharray"] = "0," + Math.max(1, pos * 251) + ",1,1000";// 0, 243.5, 8, 1000 // 251.33
                     value.style["stroke"] = hsv2css(val, 1, 0.86);
                     txt.textContent = parseInt(val * 360);
                 }
