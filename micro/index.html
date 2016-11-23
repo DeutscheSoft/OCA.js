@@ -76,7 +76,6 @@
                 base.setAttributeNS(null, "cx", "50");
                 base.setAttributeNS(null, "cy", "50");
                 base.setAttributeNS(null, "r", "40");
-                base.setAttributeNS(null, "transform", "rotate(135 50 50)");
                 SVG.appendChild(base);
                 
                 var value = document.createElementNS(xmlns, "circle");
@@ -84,7 +83,6 @@
                 value.setAttributeNS(null, "cx", "50");
                 value.setAttributeNS(null, "cy", "50");
                 value.setAttributeNS(null, "r", "40");
-                value.setAttributeNS(null, "transform", "rotate(135 50 50)");
                 SVG.appendChild(value);
                 
                 var label = document.createElementNS(xmlns, "text");
@@ -97,11 +95,12 @@
                 var txt = document.createTextNode("");
                 label.appendChild(txt);
                 
-                var update_reading = function(val) {
-                    var pos = Math.min(1, Math.max(0, (val + 128) / 255.));
-                    value.style["stroke-dasharray"] = pos * 190 + " 1000";
-                    value.style["stroke"] = hsv2css(0.3-pos*0.3, 1, 0.86);
-                    txt.textContent = parseInt(pos * 100);
+                var update_reading = function(v) {
+                    var val = Math.min(1, Math.max(0, (v + 128) / 255.));
+                    var pos = parseInt(val * 36) / 36.;
+                    value.style["stroke-dasharray"] = "0," + (pos * 251.33) + ",1,1000";// 0, 243.5, 8, 1000
+                    value.style["stroke"] = hsv2css(val, 1, 0.86);
+                    txt.textContent = parseInt(val * 360);
                 }
                 o.on_property_changed("Reading", update_reading).catch(function(err) { OCA.error("Subscription failed", err); });
                 o.GetReading().then(update_reading);
@@ -166,11 +165,21 @@
                 margin: 0;
             }
             body {
-                background: #222;
+                background: #111;
                 color: #ccc;
                 font-family: sans-serif;
                 overflow: hidden;
                 text-align: center;
+                background-image: url('wallpaper.jpg');
+                background-repeat: no-repeat;
+                background-position: center;
+                -webkit-background-size: cover;
+                -moz-background-size: cover;
+                -ms-background-size: cover;
+                -o-background-size: cover;
+                background-size: cover;
+                min-width: 572px;
+                min-height: 220px;
             }
             body::before {
                 content: "";
@@ -178,6 +187,25 @@
                 height: 100%;
                 width: 0px;
                 vertical-align: middle;
+            }
+            body::after {
+                content: "";
+                display: block;
+                width: 300px;
+                height: 300px;
+                position: fixed;
+                top: 0;
+                right: 0;
+                background-image: url('oca.png');
+                background-repeat: no-repeat;
+                background-position: top right;
+                -webkit-background-size: contain;
+                -moz-background-size: contain;
+                -ms-background-size: contain;
+                -o-background-size: contain;
+                background-size: contain;
+                opacity: 0.2;
+                z-index: 0;
             }
             h1 {
                 font-weight: 200;
@@ -191,8 +219,7 @@
             button {
                 display: block;
                 border: none;
-                margin: 1px;
-                width: 48px;
+                width: 42px;
                 height: 24px;
                 -webkit-transform: rotate(180deg);
                 -moz-transform: rotate(180deg);
@@ -203,8 +230,9 @@
                 outline: 0;
                 cursor: pointer;
                 position: relative;
-                background: #000;
+                background: #222;
                 z-index: 1;
+                margin: 1px;
             }
             button.true {
                 
@@ -221,10 +249,10 @@
                 content: "";
                 display: block;
                 position: absolute;
-                top: 8px;
-                bottom: 8px;
-                right: 8px;
-                left: 8px;
+                top: 6px;
+                bottom: 6px;
+                right: 6px;
+                left: 6px;
                 padding: 0;
                 background: white;
                 -webkit-box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.15),
@@ -292,12 +320,12 @@
             }
             #ACTUATOR10400 button.true::after,
             button.true:nth-child(6)::after {
-                background: rgb(255,48,25);
-                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjMwMTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjY2YwNDA0IiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-                background: -moz-radial-gradient(center, ellipse cover, rgba(255,48,25,1) 0%, rgba(207,4,4,1) 100%);
-                background: -webkit-radial-gradient(center, ellipse cover, rgba(255,48,25,1) 0%,rgba(207,4,4,1) 100%);
-                background: radial-gradient(ellipse at center, rgba(255,48,25,1) 0%,rgba(207,4,4,1) 100%);
-                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', endColorstr='#cf0404',GradientType=1 );
+                background: rgb(255,61,2);
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjNkMDIiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYWQwMDAwIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-radial-gradient(center, ellipse cover, rgba(255,61,2,1) 0%, rgba(173,0,0,1) 100%);
+                background: -webkit-radial-gradient(center, ellipse cover, rgba(255,61,2,1) 0%,rgba(173,0,0,1) 100%);
+                background: radial-gradient(ellipse at center, rgba(255,61,2,1) 0%,rgba(173,0,0,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3d02', endColorstr='#ad0000',GradientType=1 );
                 box-shadow: 0 0 10px rgba(255,48,25, 0.3);
             }
             
@@ -330,29 +358,30 @@
                 display: block;
                 width: 100px;
                 height: 100px;
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><circle cy="128" cx="128" r="128" fill="#000000"/></svg>');
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><circle cy="128" cx="128" r="128" fill="#222"/></svg>');
                 background-repeat: no-repeat;
                 background-position: center;
-                -webkit-background-size: auto 50%;
-                -moz-background-size: auto 50%;
-                -ms-background-size: auto 50%;
-                -o-background-size: auto 50%;
-                background-size: auto 50%;
+                -webkit-background-size: auto 60%;
+                -moz-background-size: auto 60%;
+                -ms-background-size: auto 60%;
+                -o-background-size: auto 60%;
+                background-size: auto 60%;
             }
             circle {
                 fill: none;
                 stroke-width: 8;
-                stroke-dasharray: 190 1000;
+                stroke-linecap: round;
+                stroke-dashoffset: 1;
             }
             svg text {
                 fill: white;
             }
             svg circle.base {
-                stroke: rgba(0, 0, 0, 1);
+                stroke: #222;
+                stroke-width: 10;
             }
             svg circle.value {
                 stroke: rgb(147,229,80);
-                stroke-dasharray: 0 1000;
             }
             
             
@@ -364,6 +393,8 @@
                 display: inline-block;
                 vertical-align: middle;
                 text-align: left;
+                padding: 10px;
+                z-index: 1;
             }
             
             #ACTUATOR10000 {
@@ -379,12 +410,12 @@
             #SENSOR10300 {
                 position: absolute;
                 top: 30px;
-                left: 0;
+                left: 10px;
             }
             #SENSOR10301 {
                 position: absolute;
                 top: 30px;
-                right: 0;
+                right: 10px;
             }
             
             #messages, #info {
