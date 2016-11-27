@@ -142,6 +142,9 @@
                     document.getElementById('messages').innerHTML = "No devices found!";
                 }
                 document.body.classList.remove("loading");
+                document.addEventListener('touchmove', function(e){
+                    e.preventDefault(); 
+                });
             };
             
             function hsv2css(h, s, v) {
