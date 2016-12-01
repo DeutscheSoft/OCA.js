@@ -1,7 +1,1 @@
-micro/centers.png
-micro/dots.png
-micro/lights.png
-micro/lines.png
-micro/*.xcf
-micro/*.blend
-micro/Dave*
+micro/sources/*
