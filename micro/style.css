@@ -241,7 +241,7 @@ svg circle.value {
     height: 220px;
 }
 .loading #UI::before {
-    content: "Loading...";
+    content: "LOADING";
     width: 128px;
     height: 1em;
     text-align: center;
