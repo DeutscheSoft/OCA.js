@@ -45,7 +45,7 @@ body::after {
     -ms-background-size: contain;
     -o-background-size: contain;
     background-size: contain;
-    opacity: 0.2;
+    opacity: 0.33;
     z-index: 0;
 }
 h1 {
@@ -254,7 +254,7 @@ svg circle.value {
     -ms-transform: translate(-50%, -50%);
     -o-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    opacity: 0.33;
+    opacity: 0.5;
 }
 .loading #UI::after {
     content: "";
@@ -281,7 +281,7 @@ svg circle.value {
     background-position: center;
     
     animation: rotate 2s linear infinite;
-    opacity: 0.2;
+    opacity: 0.33;
 }
 @-webkit-keyframes rotate {
     from { -webkit-transform: translate(-50%, -50%) rotate(360deg); }
@@ -325,7 +325,25 @@ svg circle.value {
     left: 10px;
 }
 
-#messages, #info {
+#info {
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    opacity: 0.5;
+    background: black;
+}
+#info img {
+    box-sizing: border-box;
+    border: 12px solid transparent;
+    width: 23%;
+    max-width: 200px;
+    height: auto;
+    vertical-align: middle;
+}
+
+#messages {
     position: fixed;
     z-index: 100;
     left: 0;
@@ -349,16 +367,12 @@ svg circle.value {
     text-align: left;
     outline: 0;
 }
-#info {
-    
-}
-#messages::before,
-#info::before {
+#messages::before {
     width: 42px;
     height: 42px;
     position: absolute;
     top: -42px;
-    right: 44px;
+    right: 0px;
     background: black;
     display: block;
     content: "";
@@ -372,34 +386,7 @@ svg circle.value {
     background-position: center;
     background-repeat: no-repeat;
 }
-#info::before {
-    right: 0;
-    left: auto;
-    background-image: url(images/info.svg);
-}
-#messages.active,
-#info.active {
+#messages.active {
     transform: none;
     z-index: 101;
-}
-#info h1 {
-    margin: 0 150px 20px 0;
-}
-#logos {
-    position: absolute;
-    z-index: 2;
-    top: 20px;
-    right: 20px;
-    width: 128px;
-    height: 42px;
-    background-image: url(images/Focusrite.svg),
-                      url(images/DeusO.svg);
-    -webkit-background-size: 100% auto;
-    -moz-background-size: 100% auto;
-    -ms-background-size: 100% auto;
-    -o-background-size: 100% auto;
-    background-size: 100% auto;
-    background-position: left top, left bottom;
-    background-repeat: no-repeat;
-    opacity: 0.5;
 }
