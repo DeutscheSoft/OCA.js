@@ -1,5 +1,3 @@
-var ws = new WebSocket('ws://'+document.location.host);
-
 var objects;
 
 function bitstring_actuator(o, sensor) {
@@ -15,6 +13,7 @@ function bitstring_actuator(o, sensor) {
             for (var i = 0; i < S.length; i++) {
                 B[i].classList.toggle(cls, state[i]);
             }
+            network.add(S.length);
         };
         var update_actuator = update_state.bind(this, "true");
         var update_sensor = update_state.bind(this, "pressed");
@@ -26,6 +25,7 @@ function bitstring_actuator(o, sensor) {
             b.addEventListener("click", function(index) {
                 var state = this.classList.contains("true");
                 o.SetBit(index, !state);
+                network.add(1);
             }.bind(b, index));
 
             DIV.appendChild(b);
@@ -80,13 +80,14 @@ function int8_sensor(o) {
         value.style["stroke-dasharray"] = (pos === 0) ? "2,1000" : ("0," + pos + ",1,1000");
         value.style["stroke"] = hsv2css(val, 1, 0.86);
         txt.textContent = parseInt(val * 360);
+        network.add(1);
     }
     o.on_property_changed("Reading", update_reading).catch(function(err) { OCA.error("Subscription failed", err); });
     o.GetReading().then(update_reading);
     return SVG;
 }
 
-ws.onopen = function() {
+function onopen () {
     window.device = new OCA.RemoteDevice(new OCA.WebSocketConnection(ws));
 
     document.addEventListener('touchmove', function(e){
@@ -126,7 +127,55 @@ ws.onopen = function() {
     }
     document.body.classList.remove("loading");
     FastClick.attach(document.body);
+    
+    network.run();
 };
+
+
+function Network (items, timeout, parent) {
+    this._to = -1;
+    this.items = items;
+    this.timeout = timeout;
+    this.values = [];
+    this.pointer = 0;
+    this.value = 0;
+    this.add = function (val) { this.value += val; }
+    this.step = function () {
+        //this.value = parseInt(Math.random() * 1000);
+        if (this.pointer >= 50) {
+            this.values = this.values.slice(1);
+            this.values.push(this.value);
+        }
+        else this.values[this.pointer++] = this.value;
+        this.value = 0;
+        var max = Math.max.apply(Math, this.values);
+        for (var i = 0; i < this.values.length; i++) {
+            this.con.childNodes[i].style.height = (this.values[i] / max * 100) + "%";
+        }
+    }
+    this.stop = function () {
+        if (this._to >= 0)
+            window.clearInterval(this._to);
+    }
+    this.run = function () {
+        this.stop();
+        this._to = window.setInterval(this.step.bind(this), this.timeout);
+    }
+    
+    this.con = document.createElement("ul");
+    this.con.setAttribute("id", "network");
+    for (var i = 0; i < 50; i++) {
+        this.con.appendChild(document.createElement("li"));
+    }
+    if (parent)
+        parent.appendChild(this.con);
+}
+
+function init () {
+    window.network = new Network(100, 250, document.body);
+    window.ws = new WebSocket('ws://'+document.location.host);
+    ws.onopen = onopen;
+}
 
 function hsv2css(h, s, v) {
     var r, g, b;
