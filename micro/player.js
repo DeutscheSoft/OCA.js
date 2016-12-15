@@ -272,7 +272,7 @@ var UI = function (player, callbacks) {
     this.draw_analyzer = function () {
         var data = this.player.get_analyzer();
         for (var i = 0; i < this.strips.length; i++)
-            this.strips[i].style.height = (100 + data[i]) + "%"
+            this.strips[i].style.height = Math.max(0, (100 + data[i])) + "%"
         requestAnimationFrame(this.draw_analyzer.bind(this));
     }
     
