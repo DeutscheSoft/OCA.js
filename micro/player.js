@@ -52,13 +52,16 @@ var callbacks = {
         console.log("stop", s)
     }
 }
+
+var fft_size = 128;
+var fft_strips;
+
 /* END OF CONFIGURATION */
 
 var init = function () {
     w.ctx = new (window.AudioContext || window.webkitAudioContext)();
     w.player = new Player(sources, ctx);
     w.ui = new UI(w.player, callbacks);
-    w.simu = new Simulation();
 }
 
 
@@ -73,8 +76,9 @@ var Player = function (sources, ctx, callbacks) {
         
         // Analyzer
         this.analyzer = this.ctx.createAnalyser();
-        this.analyzer.fftSize = 32;
-        this.analyzer_data = new Float32Array(this.analyzer.frequencyBinCount);
+        this.analyzer.fftSize = fft_size;
+        fft_strips = this.analyzer.frequencyBinCount;
+        this.analyzer_data = new Float32Array(fft_strips);
         
         // Filter
         this.filter = this.ctx.createBiquadFilter();
@@ -192,18 +196,22 @@ var UI = function (player, callbacks) {
     this.player = player;
     this.sources = player.sources;
     this.callbacks = callbacks || {};
+    this.started = false;
     
     this.init = function () {
         this.node = element("div", {id:"player"}, document.body);
             
         this.toggle = element("div", {id:"toggle"}, this.node);
         this.toggle.onclick = (function (e) {
-            if (this.player.started) {
+            if (this.started) {
+                this.started = false;
                 this.player.stop();
                 this.node.classList.remove("started");
             } else {
+                this.started = true;
                 this.player.start();
                 this.node.classList.add("started");
+                this.draw_analyzer();
             }
         }).bind(this);
         
@@ -234,16 +242,15 @@ var UI = function (player, callbacks) {
                         that.callbacks.sourcestop(src);
                 }
             })(s, this);
-            //var up = (function (src, that) {
-                //return function (e) {
-                    //e.preventDefault();
-                    //if (that.callbacks.sourcestop)
-                        //that.callbacks.sourcestop(src);
-                //}
-            //})(s, this);
             e.touchstart = down;
             e.onmousedown = down;
             s.element = e;
+        }
+        
+        this.analyzer = element("div", {id: "analyzer"}, this.node);
+        this.strips = [];
+        for (var i = 0; i < fft_strips; i++) {
+            this.strips.push(element("div", {"class":"strip"}, this.analyzer));
         }
     }
     
@@ -262,13 +269,11 @@ var UI = function (player, callbacks) {
         }
     }
     
-    this.init();
-}
-
-
-var Simulation = function () {
-    this.init = function () {
-        
+    this.draw_analyzer = function () {
+        var data = this.player.get_analyzer();
+        for (var i = 0; i < this.strips.length; i++)
+            this.strips[i].style.height = (100 + data[i]) + "%"
+        requestAnimationFrame(this.draw_analyzer.bind(this));
     }
     
     this.init();

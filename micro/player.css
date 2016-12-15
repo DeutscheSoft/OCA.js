@@ -297,3 +297,22 @@ code {
 #player > #sources > .source.started {
     background: blue;
 }
+
+#player > #analyzer {
+    height: 200px;
+    position: relative;
+}
+#player > #analyzer::before {
+    content: "";
+    display: inline-block;
+    vertical-align: bottom;
+    width: 0;
+    height: 100%;
+}
+
+#player > #analyzer > .strip {
+    display: inline-block;
+    vertical-align: bottom;
+    width: 8px;
+    background: blue;
+}
