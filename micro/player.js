@@ -253,10 +253,11 @@ var UI = function (player, callbacks) {
             s.element.classList[ v ? "add" : "remove"]("started");
         else {
             s.element.classList.add("started");
-            if (s.timeout)
-                clearTimeout(s);
+            if (s.timeout >= 0)
+                clearTimeout(s.timeout);
             s.timeout = setTimeout(function () {
                 s.element.classList.remove("started");
+                s.timeout = -1;
             }, 250);
         }
     }
