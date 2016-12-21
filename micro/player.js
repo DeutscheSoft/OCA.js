@@ -69,7 +69,7 @@ var marquee_retention = 80;
 var marquee_delay = 6000;
 var oneshot_lit = 250;
 
-var master_styles = "#player > .knob {background: {color};}\n#player > #analyzer > .strip > .led {background: {color};}\n#player > #sources > .source,#player > #toggle {border: 3px solid {color};}";
+var master_styles = "#player > .knob {background: {color};}\n#player > #analyzer > .strip > .led {background: {color};}\n#player > #sources > .source,#player > #toggle {border: 3px solid {color};}\nbody{background: {color2}";
 
 /* END OF CONFIGURATION */
 
@@ -204,9 +204,14 @@ var Application = function (websocket, sources) {
                     f = Math.min(this.max, Math.max(this.min, f));
                     this.target.value = Math.pow(10, f);
                 }
+                var that = this;
                 element.get = function () {
                     var f = Math.log10(this.target.value);
-                    return (f - this.min) / (this.max - this.min)
+                    var val = (f - this.min) / (this.max - this.min);
+                    var color = hsv2css(1 - val, 1, 0.2);
+                    var color2 = hsv2css(1 - val, 1, 0.1);
+                    that.style.innerHTML = master_styles.replace(/{color}/g, color).replace(/{color2}/g, color2);
+                    return val;
                 }
                 element.value = this.Player.filter.frequency.value;
                 element.last = 0;
@@ -220,12 +225,9 @@ var Application = function (websocket, sources) {
                     f = Math.pow(10, (f / 20));
                     this.target.value = f;
                 }
-                var that = this;
                 element.get = function () {
                     var f = 20 * Math.log10(this.target.value);
                     var val = (f - this.min) / (this.max - this.min);
-                    var color = hsv2css(val, 1, 0.33);
-                    that.style.innerHTML = master_styles.replace(/{color}/g, color);
                     return val;
                 }
                 element.value = this.Player.master.gain.value;
