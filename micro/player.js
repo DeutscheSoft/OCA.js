@@ -154,15 +154,11 @@ var Application = function (websocket, sources) {
         var ui = this.UI;
         var that = this;
         object.GetNrBits().then(function(N) {
-            
-            var click = function (source, state) {
-                
-            }
-            
             for (var i = 0; i < N; i++) {
                 var s = element.sources[i];
                 s.id = i;
                 s.actuator = act;
+                s.pressed = false;
                 var t = ui.add_source(s);
                 var a = p.add_source(s);
                 
@@ -173,21 +169,18 @@ var Application = function (websocket, sources) {
                 })(s);
             }
             var update_actuator = function (a) {
+                console.log(a)
                 for (var i = 0; i < a.length; i++) {
-                    if (a[i])
+                    if (a[i] && !element.sources[i].pressed)
                         that.set_source(element.sources[i]);
+                    element.sources[i].pressed = a[i];
                 }
+                
             }
             object.on_property_changed("BitString", update_actuator)
                 .catch(function(err) { OCA.error("Subscription failed", err); });
             act.GetBitstring().then(update_actuator);
         });
-        
-    
-        for (var i = 0; i < element.sources.length; i++) {
-            
-            
-        }
     }
     
     this.add_analyzer = function (element, object) {

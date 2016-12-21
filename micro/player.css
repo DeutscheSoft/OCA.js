@@ -1,118 +1,3 @@
-/* LAZY C'N'P SHTUFF */
-/*
-    background: ffffff
-    text:       000000
-    content:    ffffff
-    borders:    999999
-    highlight:  666666
-
-
-    transition:         opacity 0.3s;
-    -o-transition:      opacity 0.3s;
-    -ms-transition:     opacity 0.3s;
-    -moz-transition:    opacity 0.3s;
-    -webkit-transition: opacity 0.3s;
-
-    -webkit-background-size: cover;
-    -moz-background-size:    cover;
-    -ms-background-size:     cover;
-    -o-background-size:      cover;
-    background-size:         cover;
-    
-    -webkit-transform: translate(0%, -50%);
-    -moz-transform:    translate(0%, -50%);
-    -ms-transform:     translate(0%, -50%);
-    -o-transform:      translate(0%, -50%);
-    transform:         translate(0%, -50%);
-    
-    -webkit-animation: webkit-animationname 0.33s;
-    -moz-animation:    moz-animationname 0.33s;
-    -ms-animation:     ms-animationname 0.33s;
-    -o-animation:      o-animationname 0.33s;
-    animation:         animationname 0.33s;
-
-@keyframes webkit-animationname {
-    0%   {  }
-    100% {  }
-}
-@keyframes moz-animationname {
-    0%   {  }
-    100% {  }
-}
-@keyframes ms-animationname {
-    0%   {  }
-    100% {  }
-}
-@keyframes o-animationname {
-    0%   {  }
-    100% {  }
-}
-@keyframes animationname {
-    0%   {  }
-    100% {  }
-}
-
-    -webkit-animation-name: animation;
-    -moz-animation-name:    animation;
-    -ms-animation-name:     animation;
-    -o-animation-name:      animation;
-    animation-name:         animation;
-    -webkit-animation-delay: 8s;
-    -moz-animation-delay:    8s;
-    -ms-animation-delay:     8s;
-    -o-animation-delay:      8s;
-    animation-delay:         8s;
-    -webkit-animation-duration: 8s;
-    -moz-animation-duration:    8s;
-    -ms-animation-duration:     8s;
-    -o-animation-duration:      8s;
-    animation-duration:         8s;
-    -webkit-animation-iteration-count: infinite;
-    -moz-animation-iteration-count:    infinite;
-    -ms-animation-iteration-count:     infinite;
-    -o-animation-iteration-count:      infinite;
-    animation-iteration-count:         infinite;
-    -webkit-animation-timing-function: linear;
-    -moz-animation-timing-function:    linear;
-    -ms-animation-timing-function:     linear;
-    -o-animation-timing-function:      linear;
-    animation-timing-function:         linear;
-    
-    
-.flip {
-    -webkit-animation: webkit-flip 1s linear; 
-    -moz-animation:    moz-flip 1s linear; 
-    -ms-animation:     ms-flip 1s linear; 
-    -o-animation:      o-flip 1s linear; 
-    animation:         flip 1s linear; 
-}
-@keyframes webkit-flip {
-    0%    { -webkit-transform: rotateY(0deg); }
-    50%   { -webkit-transform: rotateY(180deg); }
-    100%  { -webkit-transform: rotateY(360deg); }
-}
-@keyframes moz-flip {
-    0%    { -moz-transform: rotateY(0deg); }
-    50%   { -moz-transform: rotateY(180deg); }
-    100%  { -moz-transform: rotateY(360deg); }
-}
-@keyframes ms-flip {
-    0%    { -ms-transform: rotateY(0deg); }
-    50%   { -ms-transform: rotateY(180deg); }
-    100%  { -ms-transform: rotateY(360deg); }
-}
-@keyframes o-flip {
-    0%    { -o-transform: rotateY(0deg); }
-    50%   { -o-transform: rotateY(180deg); }
-    100%  { -o-transform: rotateY(360deg); }
-}
-@keyframes flip {
-    0%    { transform: rotateY(0deg); }
-    50%   { transform: rotateY(180deg); }
-    100%  { transform: rotateY(360deg); }
-}
-*/
-
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6,
 p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del,
 dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt,
@@ -174,96 +59,7 @@ body, html {
     padding: 0;
     border: 0;
 }
-html {
-    
-}
 body {
-}
-
-/* HTML */
-img {
-    
-}
-
-a {
-    color: #000;
-    text-decoration: none;
-}
-a:hover {
-    color: #333;
-    text-decoration: underline;
-}
-a:visited {
-    color: #666;
-}
-div {
-    
-}
-p {
-    
-}
-
-h1 {
-    
-}
-h2 {
-    
-}
-h3 {
-    
-}
-h4 {
-    
-}
-
-ul {
-    
-}
-li {
-    
-}
-
-form {
-    
-}
-input {
-    
-}
-textarea {
-    
-}
-button {
-    
-}
-select {
-    
-}
-
-table {
-    
-}
-tr {
-    
-}
-td{
-    
-}
-
-pre {
-    
-}
-blockquote {
-    
-}
-code {
-    
-}
-
-
-body {
-/*
-    background: url(images/background.png);
-*/
     background: #111;
     font-family: sans-serif;
     color: #000;
@@ -271,12 +67,6 @@ body {
     line-height: 1.9em;
     letter-spacing: 0.0em;
     text-align: center;
-    background: rgb(34,34,34);
-background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMyMjIyMjIiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMDAwMDAwIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-background: -moz-radial-gradient(center, ellipse cover, rgba(34,34,34,1) 0%, rgba(0,0,0,1) 100%);
-background: -webkit-radial-gradient(center, ellipse cover, rgba(34,34,34,1) 0%,rgba(0,0,0,1) 100%);
-background: radial-gradient(ellipse at center, rgba(34,34,34,1) 0%,rgba(0,0,0,1) 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#222222', endColorstr='#000000',GradientType=1 );
 }
 body::before {
     display: inline-block;
@@ -306,16 +96,10 @@ body::before {
     border-radius: 6px;
     background: #111 url(images/buttons/play.png) no-repeat center;
     background-size: contain;
-    box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.1),
-                0 -0.5px 0.5px rgba(0, 0, 0, 0.7);
 }
 #player > #sources > .source.started,
 #player.started > #toggle {
     border-color: white;
-    box-shadow: 0 0 8px rgba(236, 180, 255, 0.4),
-                0 0 20px rgba(255, 255, 255, 0.2),
-                inset 0 0 8px rgba(236, 180, 255, 0.4),
-                inset 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 #player > #sources {
@@ -339,9 +123,6 @@ body::before {
     background-size: 80%;
     background-repeat: no-repeat;
     background-position: center;
-    box-shadow: 0 1px 2px black;
-    box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.1),
-                0 -0.5px 0.5px rgba(0, 0, 0, 0.7);
 }
 
 .clap { background-image: url(images/buttons/claps.png); }
@@ -376,29 +157,19 @@ body::before {
     width: 12px;
     height: 12px;
     margin: 4px 2px;
-    border: 0.5px solid #282828;
 }
 #player > #analyzer > .strip > .led.active {
     z-index: 2;
     background: white;
-    box-shadow: 0 0 8px rgba(236, 180, 255, 0.6),
-                0 0 20px rgba(255, 255, 255, 0.5),
-                inset 0 0 8px rgba(236, 180, 255, 0.5),
-                inset 0 0 20px rgba(255, 255, 255, 0.5);
-/*
-    border: 0.5px solid rgba(236, 180, 255, 0.5);
-*/
-    border-color: #ccc;
 }
 
 
 #player > .knob {
-    height: 190px;
+    height: 188px;
     width: 12px;
     position: absolute;
     top: 4px;
     background: #222;
-    border: 0.5px solid #282828;
 }
 #player > .knob > .bar {
     width: 100%;
@@ -407,14 +178,26 @@ body::before {
     left: 0;
     right: 0;
     background: white;
-    box-shadow: 0 0 8px rgba(236, 180, 255, 0.6),
-                0 0 20px rgba(255, 255, 255, 0.5),
-                inset 0 0 8px rgba(236, 180, 255, 0.5),
-                inset 0 0 20px rgba(255, 255, 255, 0.5);
 }
 #player > #master {
     right: 0;
 }
 #player > #filter {
     left: 0;
+}
+
+@media (max-width: 568px), (max-height: 276px) {
+    body::after {
+        content: "Device too small";
+        display: table-cell;
+        z-index: 10000000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #111;
+        color: white;
+        vertical-align: middle;
+    }
 }
