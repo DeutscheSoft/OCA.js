@@ -173,7 +173,6 @@ var Application = function (websocket, sources) {
                 })(s);
             }
             var update_actuator = function (a) {
-                console.log(a)
                 for (var i = 0; i < a.length; i++) {
                     if (a[i] && !element.sources[i].pressed)
                         that.set_source(element.sources[i]);
