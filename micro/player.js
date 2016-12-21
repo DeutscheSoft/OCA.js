@@ -69,6 +69,8 @@ var marquee_retention = 80;
 var marquee_delay = 6000;
 var oneshot_lit = 250;
 
+var master_styles = "#player > .knob {background: {color};}\n#player > #analyzer > .strip > .led {background: {color};}\n#player > #sources > .source,#player > #toggle {border: 3px solid {color};}";
+
 /* END OF CONFIGURATION */
 
 var init = function () {
@@ -109,6 +111,8 @@ var Application = function (websocket, sources) {
             this.Player.stop();
             this.set_marquee(true);
         }).bind(this));
+        
+        this.style = element('style', {}, document.body)
     }
     
     this.connect = function () {
@@ -217,9 +221,13 @@ var Application = function (websocket, sources) {
                     f = Math.pow(10, (f / 20));
                     this.target.value = f;
                 }
+                var that = this;
                 element.get = function () {
                     var f = 20 * Math.log10(this.target.value);
-                    return (f - this.min) / (this.max - this.min)
+                    var val = (f - this.min) / (this.max - this.min);
+                    var color = hsv2css(val, 1, 0.33);
+                    that.style.innerHTML = master_styles.replace(/{color}/g, color);
+                    return val;
                 }
                 element.value = this.Player.master.gain.value;
                 element.last = 0;
@@ -647,6 +655,23 @@ function easeInOut (t, b, c, d) {
     return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
 }
 
+function hsv2css(h, s, v) {
+    var r, g, b;
+    var i = Math.floor(h * 6);
+    var f = h * 6 - i;
+    var p = v * (1 - s);
+    var q = v * (1 - f * s);
+    var t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+    case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    return "rgb(" + parseInt(r * 255) + "," + parseInt(g * 255) + "," + parseInt(b * 255) + ")";
+}
 
 document.addEventListener("DOMContentLoaded", init);
 
