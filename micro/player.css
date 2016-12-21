@@ -168,7 +168,7 @@ nav ul li {
 /* DEFAULT */
 
 body, html {
-    min-height: 100%;
+    height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
@@ -178,12 +178,6 @@ html {
     
 }
 body {
-    background: #ffffff;
-    font-family: sans-serif;
-    color: #000;
-    font-size: 0.7em;
-    line-height: 1.9em;
-    letter-spacing: 0.0em;
 }
 
 /* HTML */
@@ -266,41 +260,101 @@ code {
 }
 
 
+body {
+/*
+    background: url(images/background.png);
+*/
+    background: #111;
+    font-family: sans-serif;
+    color: #000;
+    font-size: 0.7em;
+    line-height: 1.9em;
+    letter-spacing: 0.0em;
+    text-align: center;
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMyMTIxMjEiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTExMTExIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+background: -moz-radial-gradient(center, ellipse cover, rgba(33,33,33,1) 0%, rgba(17,17,17,1) 100%);
+background: -webkit-radial-gradient(center, ellipse cover, rgba(33,33,33,1) 0%,rgba(17,17,17,1) 100%);
+background: radial-gradient(ellipse at center, rgba(33,33,33,1) 0%,rgba(17,17,17,1) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#212121', endColorstr='#111111',GradientType=1 );
+}
+body::before {
+    display: inline-block;
+    content: "";
+    vertical-align: middle;
+    width: 0;
+    height: 100%;
+}
 
-
-
+#player {
+    display: inline-block;
+    vertical-align: middle;
+    margin: auto;
+    position: relative;
+    padding: 0 28px;
+}
 
 
 #player > #toggle {
-    width: 48px;
-    height: 48px;
-    background: red;
+    width: 72px;
+    height: 72px;
     margin: 2px;
-    display: inline-block;
+    position: absolute;
+    bottom: 0px;
+    left: 28px;
+    border: 3px solid #222;
+    border-radius: 6px;
+    background: #111 url(images/buttons/play.png) no-repeat center;
+    background-size: contain;
+    box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.1),
+                0 -0.5px 0.5px rgba(0, 0, 0, 0.7);
 }
+#player > #sources > .source.started,
 #player.started > #toggle {
-    background: lightgreen;
+    border-color: white;
+    box-shadow: 0 0 8px rgba(236, 180, 255, 0.4),
+                0 0 20px rgba(255, 255, 255, 0.2),
+                inset 0 0 8px rgba(236, 180, 255, 0.4),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 #player > #sources {
-    display: inline-block;
+    display: block;
+    text-align: right;
+    position: absolute;
+    bottom: 16px;
+    right: 0;
+    line-height: 0;
+    padding: 0 28px;
 }
 
 #player > #sources > .source {
     width: 48px;
     height: 48px;
-    background: yellow;
-    margin: 2px;
+    margin: 0 2px;
     display: inline-block;
+    border: 3px solid #222;
+    border-radius: 6px;
+    background-color: #111;
+    background-size: 80%;
+    background-repeat: no-repeat;
+    background-position: center;
+    box-shadow: 0 1px 2px black;
+    box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.1),
+                0 -0.5px 0.5px rgba(0, 0, 0, 0.7);
 }
 
-#player > #sources > .source.started {
-    background: blue;
-}
+.clap { background-image: url(images/buttons/claps.png); }
+.claves { background-image: url(images/buttons/claves.png); }
+.crash { background-image: url(images/buttons/crash.png); }
+.drums { background-image: url(images/buttons/drums.png); }
+.bass { background-image: url(images/buttons/bass.png); }
+.fx { background-image: url(images/buttons/fx.png); }
+.arpeggio { background-image: url(images/buttons/arpeggio.png); }
+.pad { background-image: url(images/buttons/pad.png); }
 
 #player > #analyzer {
-    height: 200px;
     position: relative;
+    margin-bottom: 80px;
 }
 #player > #analyzer::before {
     content: "";
@@ -313,6 +367,54 @@ code {
 #player > #analyzer > .strip {
     display: inline-block;
     vertical-align: bottom;
-    width: 8px;
-    background: blue;
+    color: white;
+}
+#player > #analyzer > .strip > .led {
+    position: relative;
+    background: #222;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 4px 2px;
+    border: 0.5px solid #282828;
+}
+#player > #analyzer > .strip > .led.active {
+    z-index: 2;
+    background: white;
+    box-shadow: 0 0 8px rgba(236, 180, 255, 0.6),
+                0 0 20px rgba(255, 255, 255, 0.5),
+                inset 0 0 8px rgba(236, 180, 255, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.5);
+/*
+    border: 0.5px solid rgba(236, 180, 255, 0.5);
+*/
+    border-color: #ccc;
+}
+
+
+#player > .knob {
+    height: 190px;
+    width: 12px;
+    position: absolute;
+    top: 4px;
+    background: #222;
+    border: 0.5px solid #282828;
+}
+#player > .knob > .bar {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 0 8px rgba(236, 180, 255, 0.6),
+                0 0 20px rgba(255, 255, 255, 0.5),
+                inset 0 0 8px rgba(236, 180, 255, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.5);
+}
+#player > #master {
+    right: 0;
+}
+#player > #filter {
+    left: 0;
 }
