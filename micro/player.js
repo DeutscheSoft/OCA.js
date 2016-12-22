@@ -494,10 +494,6 @@ var Player = function (ctx) {
         source.loop = s.loop;
         var last = source;
 
-        if (!s.loop) {
-            source.onended = this.low_prepare_source.bind(this, s);
-        }
-
         if (s.fx) {
             for (var i = 0; i < s.fx.length; i++) {
                 last.connect(this[s.fx[i]]);
@@ -528,7 +524,11 @@ var Player = function (ctx) {
         if (s.loop) {
             s.source.start(0);
         } else {
-            s.sources[s.iter++].start(0);
+            try {
+                s.sources[s.iter++].start(0);
+            } catch(err) {
+                this.low_prepare_source(s).start(0);
+            }
             if (s.iter >= s.sources.length) {
                 s.iter = 0;
             }
