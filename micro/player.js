@@ -68,6 +68,7 @@ var analyzer_retention = 120;
 var marquee_retention = 80;
 var marquee_delay = 6000;
 var oneshot_lit = 250;
+var oneshot_caches = 5;
 
 var master_styles = "#player > .knob {background: {color};}\n#player > #analyzer > .strip > .led {background: {color};}\n#player > #sources > .source,#player > #toggle {border: 3px solid {color};}\nbody{background: {color2}";
 
@@ -412,6 +413,11 @@ var Player = function (ctx) {
             s.player = this;
             if (!s.started && s.loop)
                 s.gain.gain.value = 0;
+            if (!s.loop) {
+                s.sources = [];
+                s.iter = 0;
+            }
+            this.prepare_source(s);
         }).bind(this),
         function (err) {
             console.warn(err);
@@ -481,19 +487,52 @@ var Player = function (ctx) {
     
     /* helpers */
     
-    this.run_source = function (s) {
-        s.source = this.ctx.createBufferSource();
-        s.source.buffer = s.buffer;
-        s.source.loop = s.loop;
-        var last = s.source;
+    this.low_prepare_source = function (s) {
+        var source = this.ctx.createBufferSource();
+
+        source.buffer = s.buffer;
+        source.loop = s.loop;
+        var last = source;
+
+        if (!s.loop) {
+            source.onended = this.low_prepare_source.bind(this, s);
+        }
+
         if (s.fx) {
             for (var i = 0; i < s.fx.length; i++) {
                 last.connect(this[s.fx[i]]);
                 last = this[s.fx[i]];
             }
         }
+
         last.connect(s.gain);
-        s.source.start(0);
+
+        return source;
+    }
+
+    this.prepare_source = function (s) {
+        if (s.loop) {
+            s.source = this.low_prepare_source(s);
+        } else {
+            for (var i = 0; i < oneshot_caches; i++) {
+                s.sources[i] = this.low_prepare_source(s);
+                s.sources[i].onended = (function me(i, s) {
+                    s.sources[i] = this.low_prepare_source(s);
+                    s.sources[i].onended = me.bind(this, i, s);
+                                        }).bind(this, i, s);
+            }
+        }
+    }
+
+    this.run_source = function (s) {
+        if (s.loop) {
+            s.source.start(0);
+        } else {
+            s.sources[s.iter++].start(0);
+            if (s.iter >= s.sources.length) {
+                s.iter = 0;
+            }
+        }
         s.started = !!s.gain.gain.value;
     }
     this.stop_source = function (s) {
