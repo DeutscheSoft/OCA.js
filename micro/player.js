@@ -355,6 +355,7 @@ var Player = function (ctx) {
             this.analyzer.fftSize = 8192;
         } catch (e) {
             this.analyzer.fftSize = 2048;
+            analyzer_strips = 24;
         }
         this.analyzer.smoothingTimeConstant = 0.8;
         this.a_fft_strips = this.analyzer.frequencyBinCount;
@@ -450,15 +451,18 @@ var Player = function (ctx) {
         y = y || 100;
         var step = (this.a_maxf10 - this.a_minf10) / x;
         var last = Math.round(((Math.pow(10, this.a_minf10) / this.a_maxf)) * this.a_maxs);
+        var res = 0;
         for (var i = 0; i < x; i++) {
             var l = Math.round(((Math.pow(10, this.a_minf10 + (1 + i) * step) / this.a_maxf)) * this.a_maxs);
-            var sum = 0;
-            for (var j = last; j <= l; j++) {
-                sum += Math.min(this.a_maxdb, Math.max(this.a_mindb, data[j]));
+            if (l != last) {
+                var sum = 0;
+                for (var j = last; j <= l; j++) {
+                    sum += Math.min(this.a_maxdb, Math.max(this.a_mindb, data[j]));
+                }
+                sum /= l - last;
+                if (sum < this.a_mindb) sum = this.a_mindb;
+                res = Math.round((1 - ((sum - this.a_maxdb) / range)) * y);
             }
-            sum /= l - last;
-            if (sum < this.a_mindb) sum = this.a_mindb;
-            var res = Math.round((1 - ((sum - this.a_maxdb) / range)) * y);
             result.push(res);
             last = l;
         }
@@ -602,8 +606,8 @@ var UI = function () {
         this.events.start.initEvent("start", true, true);
         this.events.stop.initEvent("stop", true, true);
         
-        this.node = element("div", {id:"player"}, document.body);
-            
+        this.node = element("div", {id:"player","class":analyzer_strips<32?"lowfft":""}, document.body);
+        
         this.toggle = element("div", {id:"toggle"}, this.node);
         this.toggle.onclick = (function (e) {
             if (this.node.classList.contains("started")) {
