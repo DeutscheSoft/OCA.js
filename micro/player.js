@@ -58,15 +58,15 @@ var elements = {
     
     "10200" : { type : "sources", actuator : "10400", sources : sources },
     
-    "10300" : { type : "knob", id : "master", min : -36, max : 24 , step : 0.5, scale : "db" },
-    "10301" : { type : "knob", id : "filter", min : Math.log10(250), max : Math.log10(10000) , step : 0.01, scale : "hz" },
+    "10300" : { type : "knob", id : "master", min : -36, max : 24 , step : 1, scale : "db" },
+    "10301" : { type : "knob", id : "filter", min : Math.log10(250), max : Math.log10(10000) , step : 0.03, scale : "hz" },
 }
 
 var analyzer_strips = 32;
 var analyzer_leds = 12;
-var analyzer_retention = 120;
-var marquee_retention = 80;
-var marquee_delay = 6000;
+w.analyzer_retention = 120;
+w.marquee_retention = 80;
+w.marquee_delay = 6000;
 var oneshot_lit = 250;
 var oneshot_caches = 5;
 
@@ -256,7 +256,7 @@ var Application = function (websocket, sources) {
     
     this.draw_analyzer = function () {
         if (this.marquee) {
-            var t = (new Date()).getTime();
+            var t = Date.now();
             if (t > this.m_next) {
                 var d = [];
                 for (var i = 0; i < analyzer_strips; i++) {
@@ -274,7 +274,7 @@ var Application = function (websocket, sources) {
             }
         } else {
             this.UI.draw_analyzer(this.Player.get_analyzer(analyzer_strips, analyzer_leds));
-            var d = (new Date()).getTime();
+            var d = Date.now();
             if (d > (this.analyzer.last + analyzer_retention)) {
                 var data = this.Player.get_analyzer(this.analyzer.objects.length, this.analyzer.y);
                 this.set_remote_analyzer(data);
@@ -351,12 +351,14 @@ var Player = function (ctx) {
         this.sr = ctx.sampleRate;
         
         this.analyzer = this.ctx.createAnalyser();
-        this.analyzer.fftSize = 8192;
+        try {
+            this.analyzer.fftSize = 8192;
+        } catch (e) {
+            this.analyzer.fftSize = 2048;
+        }
         this.analyzer.smoothingTimeConstant = 0.8;
-        
         this.a_fft_strips = this.analyzer.frequencyBinCount;
         this.a_data = new Float32Array(this.a_fft_strips);
-        
         this.a_minf = 10;
         this.a_maxf = 20000;
         this.a_minf10 = Math.log10(this.a_minf);
@@ -367,7 +369,7 @@ var Player = function (ctx) {
         
         // Filter
         this.filter = this.ctx.createBiquadFilter();
-        this.filter.frequency.value = 750;
+        this.filter.frequency.value = 500;
         this.filter.Q.value = 12;
         
         // Mixer
