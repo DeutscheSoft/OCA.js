@@ -7,7 +7,7 @@ var websocket = 'ws://'+document.location.host;
 
 var sources = [
     {
-        files: [ "audio/Drums.wav", "audio/Drums.wav.ogg", "audio/Drums.wav.ogg" ],
+        files: [ "audio/Drums.wav", "audio/Drums.wav.ogg", "audio/Drums.wav.mp3" ],
         loop: true,
         "class": "drums"
     },
@@ -33,7 +33,7 @@ var sources = [
         "class": "arpeggio"
     },
     {
-        files: [ "audio/Claves.wav", "audio/claves.wav.ogg", "audio/claves.wav.mp3" ],
+        files: [ "audio/Claves.wav", "audio/Claves.wav.ogg", "audio/Claves.wav.mp3" ],
         "class": "claves"
     },
     {
