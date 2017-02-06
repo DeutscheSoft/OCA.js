@@ -139,6 +139,8 @@ var Application = function (websocket, sources, soundfiles_loaded_cb) {
     this.soundfiles_loaded_cb = soundfiles_loaded_cb || function() {};
 
     var done = function() {
+        // TODO: it is obviously not a very good idea to modify the body
+        // from within a class like we do in the following line of code.
         document.body.classList.remove("loading");
         this.draw_analyzer();
     }.bind(this);
@@ -187,6 +189,8 @@ var Application = function (websocket, sources, soundfiles_loaded_cb) {
             ea.done();
         }).bind(this), function (err) {
             console.error(res);
+            // TODO: it is obviously not a very good idea to modify the body
+            // from within a class like we do in the following line of code.
             document.body.classList.remove("loading");
         });
     }
