@@ -117,7 +117,7 @@ EventAggregator.prototype.done = function() {
     }
 }
 
-var Application = function (websocket, sources) {
+var Application = function (websocket, sources, soundfiles_loaded_cb) {
     
     this.sources = sources;
     this.websocket = websocket;
@@ -128,6 +128,13 @@ var Application = function (websocket, sources) {
     this.m_to = -1;
     this.marquee = true;
     
+    this.soundfiles_loaded_cb = soundfiles_loaded_cb || function() {};
+
+    var done = function() {
+        document.body.classList.remove("loading");
+        this.draw_analyzer();
+    }.bind(this);
+
     this.init = function () {
         this.ctx = w.ctx = new (window.AudioContext || window.webkitAudioContext)();
         this.Tree = [];
@@ -150,6 +157,7 @@ var Application = function (websocket, sources) {
     
     this.connect = function () {
         this.Device.discover_all().then((function (res) {
+            var ea = new EventAggregator(done);
             this.Tree = res;
             for (var i = 0; i < this.Tree.length; i++) {
                 var o = this.Tree[i];
@@ -157,7 +165,7 @@ var Application = function (websocket, sources) {
                     var f = elements[o.ObjectNumber];
                     switch (f.type) {
                         case "sources":
-                            this.add_sources(f, o);
+                            this.add_sources(f, o, ea.get_cb());
                             break;
                         case "analyzer":
                             this.add_analyzer(f, o);
@@ -168,17 +176,21 @@ var Application = function (websocket, sources) {
                     }
                 }
             }
-            document.body.classList.remove("loading");
-            this.draw_analyzer();
+            ea.done();
         }).bind(this), function (err) {
             console.error(res);
             document.body.classList.remove("loading");
         });
     }
     
-    this.add_sources = function (element, object) {
+    this.add_sources = function (element, object, done_cb) {
         // get actuator
         var act = null;
+        var ea;
+
+        if (!done_cb) done_cb = function() {};
+        ea = new EventAggregator(done_cb);
+
         if (element.actuator) {
             for (var j = 0; j < this.Tree.length; j++) {
                 if (this.Tree[j].ObjectNumber == element.actuator) {
@@ -197,7 +209,7 @@ var Application = function (websocket, sources) {
                 s.actuator = act;
                 s.pressed = false;
                 var t = ui.add_source(s);
-                var a = p.add_source(s);
+                var a = p.add_source(s, ea.get_cb());
                 
                 s.button.onclick = (function (_s) {
                     return function (e) {
@@ -205,6 +217,7 @@ var Application = function (websocket, sources) {
                     }
                 })(s);
             }
+            ea.done();
             var update_actuator = function (a) {
                 for (var i = 0; i < a.length; i++) {
                     if (a[i] && !element.sources[i].pressed)
@@ -439,8 +452,9 @@ var Player = function (ctx) {
     
     /* API */
     
-    this.add_source = function (s) {
+    this.add_source = function (s, done_cb) {
         var p = this.load_sound_file(s.files, this.ctx);
+        if (!done_cb) done_cb = function() {};
         p.then((function (b) {
             s.buffer = b;
             s.gain = this.ctx.createGain();
@@ -453,9 +467,11 @@ var Player = function (ctx) {
                 s.iter = 0;
             }
             this.prepare_source(s);
+            done_cb();
         }).bind(this),
         function (err) {
             console.warn(err);
+            done_cb();
         });
         this.sources.push(s);
     }
