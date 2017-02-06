@@ -63,10 +63,11 @@ body {
     background: #111;
     font-family: sans-serif;
     color: #fff;
-    font-size: 0.7em;
+    font-size: 0em;
     line-height: 1.9em;
     letter-spacing: 0.0em;
     text-align: center;
+    white-space: nobreak;
 }
 body::before {
     display: inline-block;
@@ -81,48 +82,80 @@ body::before {
     vertical-align: middle;
     margin: auto;
     position: relative;
-    padding: 0 28px;
+    padding: 0 40px;
+    width: 90%;
+    height: 90%;
+    max-width: 800px;
+    max-height: 360px;
+    min-width: 378px;
+}
+@media (max-width: 640px) {
+    #player {
+        width: 98%;
+    }
+}
+@media (max-height: 320px) {
+    #player {
+        height: 98%;
+    }
 }
 
 
-#player > #toggle {
-    width: 72px;
-    height: 72px;
-    margin: 2px;
+#player #sources {
+    display: block;
+    text-align: right;
     position: absolute;
     bottom: 0px;
-    left: 28px;
+    left: 40px;
+    right: 40px;
+    height: 76px;
+    line-height: 0;
+}
+@media (max-width: 680px), (max-height: 240px) {
+    #player #sources {
+        height: 52px;
+    }
+}
+
+#player #toggle {
+    float: right;
+    margin: 2px;
+    width: 72px;
+    height: 72px;
     border: 3px solid #222;
     border-radius: 6px;
     background: #000 url(images/buttons/play.png) no-repeat center;
     background-size: contain;
 }
-#player > #sources > .source.started,
-#player.started > #toggle {
+#player #sources .source.started,
+#player.started #toggle {
     border-color: white;
 }
 
-#player > #sources {
-    display: block;
-    text-align: right;
-    position: absolute;
-    bottom: 16px;
-    right: 0;
-    line-height: 0;
-    padding: 0 28px;
-}
-
-#player > #sources > .source {
+#player #sources .source {
     width: 48px;
     height: 48px;
-    margin: 0 2px;
-    display: inline-block;
+    margin: 2px;
+    float: left;
     border: 3px solid #222;
     border-radius: 6px;
     background-color: #000;
     background-size: 80%;
     background-repeat: no-repeat;
     background-position: center;
+}
+
+@media (min-width: 888px) {
+    #player #sources .source {
+        width: 72px;
+        height: 72px;
+    }
+}
+@media (max-width: 680px), (max-height: 240px) {
+    #player #toggle {
+        width: 48px;
+        height: 48px;
+    }
 }
 
 .clap { background-image: url(images/buttons/claps.png); }
@@ -135,9 +168,11 @@ body::before {
 .pad { background-image: url(images/buttons/pad.png); }
 
 #player > #analyzer {
-    position: relative;
-    margin-bottom: 80px;
-    width: 512px;
+    position: absolute;
+    top: 0;
+    left: 40px;
+    right: 40px;
+    bottom: 80px;
 }
 #player > #analyzer::before {
     content: "";
@@ -146,37 +181,57 @@ body::before {
     width: 0;
     height: 100%;
 }
+@media (max-width: 480px) {
+    #player > #analyzer {
+        left: 32px;
+        right: 32px;
+    }
+}
+@media (max-width: 680px), (max-height: 240px) {
+    #player > #analyzer {
+        bottom: 52px;
+    }
+}
 
 #player > #analyzer > .strip {
     display: inline-block;
     vertical-align: bottom;
     color: white;
     border: 0px solid transparent;
-    border-width: 0 2px;
     width: calc(100% / 32);
+    height: 100%;
 }
 #player.lowfft > #analyzer > .strip {
-    width: calc(100% / 24);
+    width: calc(100% / 18);
 }
 
 #player > #analyzer > .strip > .led {
     position: relative;
     background: #222;
     width: 100%;
-    height: 12px;
-    margin: 4px 0px;
+    border: 2px solid #111;
+    height: calc(100% / 12);
+    background-clip: content-box;
 }
 #player > #analyzer > .strip > .led.active {
     z-index: 2;
     background: white;
+    background-clip: content-box;
+}
+
+@media (max-height: 320px), (max-width: 600px) {
+    #player > #analyzer > .strip > .led {
+        border-width: 1px;
+    }
 }
 
 
+
 #player > .knob {
-    height: 188px;
-    width: 12px;
     position: absolute;
-    top: 4px;
+    width: 24px;
+    top: 2px;
+    bottom: 82px;
     background: #222;
 }
 #player > .knob > .bar {
@@ -185,7 +240,7 @@ body::before {
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
+    background: white url(images/led.svg) repeat 0% 100%;
 }
 #player > #master {
     right: 0;
@@ -193,19 +248,23 @@ body::before {
 #player > #filter {
     left: 0;
 }
-
-@media (max-width: 568px), (max-height: 276px) {
-    body::after {
-        content: "Device too small";
-        display: table-cell;
-        z-index: 10000000;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: #111;
-        color: white;
-        vertical-align: middle;
+@media (max-width: 680px), (max-height: 240px) {
+    #player > .knob {
+        bottom: 52px;
     }
+}
+
+
+#log {
+    position: fixed;
+    font-family: monospace;
+    font-size: 12pt;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    text-align: right;
+}
+#log .li {
+    
 }

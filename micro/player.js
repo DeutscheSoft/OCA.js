@@ -7,41 +7,41 @@ var websocket = 'ws://'+document.location.host;
 
 var sources = [
     {
-        files: [ "audio/Drums.wav.mp3", "audio/Drums.wav.ogg" ],
+        files: [ "audio/Drums.wav", "audio/Drums.wav.ogg", "audio/Drums.wav.ogg" ],
         loop: true,
         "class": "drums"
     },
     {
-        files: [ "audio/Bass.wav.mp3", "audio/Bass.wav.ogg" ],
+        files: [ "audio/Bass.wav", "audio/Bass.wav.ogg", "audio/Bass.wav.mp3" ],
         loop: true,
         "class": "bass"
     },
     {
-        files: [ "audio/FX.wav.mp3", "audio/FX.wav.ogg" ],
+        files: [ "audio/FX.wav", "audio/FX.wav.ogg", "audio/FX.wav.mp3" ],
         loop: true,
         "class": "fx"
     },
     {
-        files: [ "audio/Pad.wav.mp3", "audio/Pad.wav.ogg" ],
+        files: [ "audio/Pad.wav", "audio/Pad.wav.ogg", "audio/Pad.wav.mp3" ],
         loop: true,
         "class": "pad"
     },
     {
-        files: [ "audio/Arpeggio.wav.mp3", "audio/Arpeggio.wav.ogg" ],
+        files: [ "audio/Arpeggio.wav", "audio/Arpeggio.wav.ogg", "audio/Arpeggio.wav.mp3" ],
         loop: true,
         fx: ["filter"],
         "class": "arpeggio"
     },
     {
-        files: [ "audio/Claves.wav.mp3", "audio/claves.wav.ogg" ],
+        files: [ "audio/Claves.wav", "audio/claves.wav.ogg", "audio/claves.wav.mp3" ],
         "class": "claves"
     },
     {
-        files: [ "audio/Clap.wav.mp3", "audio/Clap.wav.ogg" ],
+        files: [ "audio/Clap.wav", "audio/Clap.wav.ogg", "audio/Clap.wav.mp3" ],
         "class": "clap"
     },
     {
-        files: [ "audio/Crash.wav.mp3", "audio/Crash.wav.ogg" ],
+        files: [ "audio/Crash.wav", "audio/Crash.wav.ogg", "audio/Crash.wav.mp3" ],
         "class": "crash"
     }
 ];
@@ -63,26 +63,33 @@ var elements = {
 }
 
 var analyzer_strips = 32;
+var analyzer_strips_low = 18;
 var analyzer_leds = 12;
+var analyzer_smoothing = 0.75;
 w.analyzer_retention = 120;
 w.marquee_retention = 80;
 w.marquee_delay = 6000;
 var oneshot_lit = 250;
 var oneshot_caches = 5;
 
-var master_styles = "#player > .knob {background: {color};}\n#player > #analyzer > .strip > .led {background: {color};}\n#player > #sources > .source,#player > #toggle {border: 3px solid {color};}\nbody{background: {color2}";
+var master_styles = "";//"#player > .knob {background: {color};}\n#player > #analyzer > .strip > .led {background: {color};}\n#player > #sources > .source,#player > #toggle {border: 3px solid {color};}\nbody{background: {color2}";
 
 /* END OF CONFIGURATION */
 
 var init = function () {
     
+    var ul = element("ul", {"id":"log"}, document.body);
+    w.log = function (s) {
+        var li = element("li", {}, ul);
+        li.innerHTML = s;
+    }
     w.app = new Application(websocket, sources);
     
     FastClick.attach(document.body);
     
-    document.addEventListener('touchmove', function(e){
-        e.preventDefault(); 
-    });
+    //document.addEventListener('touchmove', function(e){
+        //e.preventDefault(); 
+    //});
 }
 
 var Application = function (websocket, sources) {
@@ -355,9 +362,9 @@ var Player = function (ctx) {
             this.analyzer.fftSize = 8192;
         } catch (e) {
             this.analyzer.fftSize = 2048;
-            analyzer_strips = 24;
+            analyzer_strips = analyzer_strips_low;
         }
-        this.analyzer.smoothingTimeConstant = 0.8;
+        this.analyzer.smoothingTimeConstant = analyzer_smoothing;
         this.a_fft_strips = this.analyzer.frequencyBinCount;
         this.a_data = new Float32Array(this.a_fft_strips);
         this.a_minf = 10;
@@ -430,7 +437,7 @@ var Player = function (ctx) {
     
     this.start = function () {
         for (var i = 0; i < this.sources.length; i++) {
-            var s = this.sources[i]
+            var s = this.sources[i];
             if (s.loop)
                 this.run_source(s);
         }
@@ -515,6 +522,10 @@ var Player = function (ctx) {
     this.prepare_source = function (s) {
         if (s.loop) {
             s.source = this.low_prepare_source(s);
+            s.source.onended = (function me(i, s) {
+            s.source = this.low_prepare_source(s);
+            s.source.onended = me.bind(this, i, s);
+                                }).bind(this, i, s);
         } else {
             for (var i = 0; i < oneshot_caches; i++) {
                 s.sources[i] = this.low_prepare_source(s);
@@ -528,7 +539,11 @@ var Player = function (ctx) {
 
     this.run_source = function (s) {
         if (s.loop) {
-            s.source.start(0);
+            try {
+                s.source.start(0);
+            } catch(err) {
+                log(err);
+            }
         } else {
             try {
                 s.sources[s.iter++].start(0);
@@ -607,8 +622,9 @@ var UI = function () {
         this.events.stop.initEvent("stop", true, true);
         
         this.node = element("div", {id:"player","class":analyzer_strips<32?"lowfft":""}, document.body);
+        this.sources = element("div", { id : "sources" }, this.node);
         
-        this.toggle = element("div", {id:"toggle"}, this.node);
+        this.toggle = element("div", {id:"toggle"}, this.sources);
         this.toggle.onclick = (function (e) {
             if (this.node.classList.contains("started")) {
                 this.node.classList.remove("started");
@@ -629,9 +645,6 @@ var UI = function () {
     }
     
     this.add_source = function (s) {
-        if (!this.sources) {
-            this.sources = element("div", { id : "sources" }, this.node);
-        }
         var b = element("div", {"class" : "source"}, this.sources);
         if (s.loop)
             b.classList.add("loop");
