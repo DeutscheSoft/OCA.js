@@ -92,6 +92,31 @@ var init = function () {
     //});
 }
 
+function EventAggregator(cb) {
+    this.cb = cb;
+    this.total = 0;
+}
+
+EventAggregator.prototype.get_cb = function() {
+    var called = false;
+
+    ++this.total;
+
+    return function() {
+        if (!called) {
+            called = true;
+            if (!--this.total && this.done)
+                this.cb();
+        }
+    }.bind(this);
+};
+EventAggregator.prototype.done = function() {
+    this.done = true;
+    if (!this.total) {
+        this.cb();
+    }
+}
+
 var Application = function (websocket, sources) {
     
     this.sources = sources;
