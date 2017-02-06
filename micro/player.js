@@ -46,14 +46,6 @@ var sources = [
     }
 ];
 
-(function() {
-    // During development, it may be easier to work with .wav under some
-    // circumstances. In 'production', smaller files are preferrable.
-    for (var i = 0; i < sources.length; i++) {
-        sources[i].files = sources[i].files.reverse();
-    }
-})();
-
 var elements = {
     "10000" : { type : "analyzer" },
     "10001" : { type : "analyzer" },
