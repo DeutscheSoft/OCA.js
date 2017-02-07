@@ -242,7 +242,7 @@ var Application = function (websocket, sources, soundfiles_loaded_cb) {
                     element.sources[i].pressed = a[i];
                 }
                 
-            }
+            }.bind(this);
             object.on_property_changed("BitString", update_actuator)
                 .catch(function(err) { OCA.error("Subscription failed", err); });
             act.GetBitstring().then(update_actuator);
