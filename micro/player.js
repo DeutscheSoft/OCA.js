@@ -87,9 +87,11 @@ var init = function () {
     
     FastClick.attach(document.body);
     
-    //document.addEventListener('touchmove', function(e){
-        //e.preventDefault(); 
-    //});
+    document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+
+        return false;
+    });
 }
 
 function EventAggregator(cb) {
@@ -205,7 +207,14 @@ var Application = function (websocket, sources, soundfiles_loaded_cb) {
         }
         var p = this.Player;
         var ui = this.UI;
-        var that = this;
+
+        function event_handler_template(s, e) {
+            e.preventDefault();
+            this.set_source(s);
+
+            return false;
+        }
+
         object.GetNrBits().then(function(N) {
             for (var i = 0; i < N; i++) {
                 var s = element.sources[i];
@@ -214,18 +223,22 @@ var Application = function (websocket, sources, soundfiles_loaded_cb) {
                 s.pressed = false;
                 var t = ui.add_source(s);
                 var a = p.add_source(s, ea.get_cb());
-                
-                s.button.onclick = (function (_s) {
-                    return function (e) {
-                        that.set_source(_s);
-                    }
-                })(s);
+
+                var eh = event_handler_template.bind(this, s);
+
+                s.button.addEventListener("mousedown", eh);
+                s.button.addEventListener("touchstart", eh);
+                s.button.addEventListener("contextmenu", function(e) {
+                    e.preventDefault();
+
+                    return false;
+                });
             }
             ea.done();
             var update_actuator = function (a) {
                 for (var i = 0; i < a.length; i++) {
                     if (a[i] && !element.sources[i].pressed)
-                        that.set_source(element.sources[i]);
+                        this.set_source(element.sources[i]);
                     element.sources[i].pressed = a[i];
                 }
                 
@@ -233,7 +246,7 @@ var Application = function (websocket, sources, soundfiles_loaded_cb) {
             object.on_property_changed("BitString", update_actuator)
                 .catch(function(err) { OCA.error("Subscription failed", err); });
             act.GetBitstring().then(update_actuator);
-        });
+        }.bind(this));
     }
     
     this.add_analyzer = function (element, object) {
