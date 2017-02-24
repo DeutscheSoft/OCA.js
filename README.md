@@ -49,13 +49,6 @@ For example type into the JavaScript console:
 
     objects[0].GetRole().then(function(role) { console.log('My role is: '+role); });
 
-## OCA PI Microdemo
-
-The file `micro/index.html` contains a simple UI which can be used to control the OCA PI Microdemo.
-Connect the server to the ip and port running the micro demo and then open [http://localhost:8080/micro]
-in a webbrowser. If everything works correctly, a matrix of buttons will appear, which map to the LED state
-on the Microboard. Clicking the buttons will toggle the LEDs.
-
 ## Requirements
 
 This library uses some ECMAScript 6 features. It is supposed to work in modern
