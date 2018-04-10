@@ -1,2 +1,3 @@
 micro/sources/*
 .*.swp
+node_modules
